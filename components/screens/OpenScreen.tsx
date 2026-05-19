@@ -6,10 +6,9 @@ interface OpenScreenProps {
 
 const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
   return (
-    <div className="min-h-screen bg-primary flex flex-col items-center justify-between p-8 font-sans">
-        <div/>
-        <div className="text-center">
-            <img src="/logo.png" alt="Circl" className="w-56 h-56 mx-auto object-contain drop-shadow-2xl" />
+    <div className="min-h-screen bg-primary flex flex-col items-center justify-between pb-12 pt-16 px-8 font-sans">
+        <div className="flex-1 flex items-center justify-center">
+            <img src="/logo.png" alt="Circl" style={{ width: '85vw', maxWidth: '340px' }} className="object-contain drop-shadow-2xl" />
         </div>
         <button
             onClick={onEnter}
