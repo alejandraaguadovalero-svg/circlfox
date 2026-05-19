@@ -49,7 +49,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
       <main className="flex-grow flex flex-col justify-center">
         <div className="text-center">
-          <img src="/logo.png" alt="Circl" className="w-48 h-48 mx-auto object-contain" />
+          <img src="/logo.png" alt="Circl" className="w-72 h-72 mx-auto object-contain" />
         </div>
 
         <div className="mt-8">
