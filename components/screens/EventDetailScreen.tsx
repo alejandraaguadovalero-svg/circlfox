@@ -9,14 +9,16 @@ interface EventDetailScreenProps {
   onBack: () => void;
   onJoin: (eventId: number) => void;
   onLeave: (eventId: number) => void;
+  onDelete?: (eventId: number) => void;
   onGoToChat?: (eventId: number) => void;
   onSelectUser?: (userId: number) => void;
 }
 
-const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onGoToChat, onSelectUser }) => {
+const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onDelete, onGoToChat, onSelectUser }) => {
   const attendees = event.attendeeIds.map(id => allUsers.find(u => u.id === id)).filter(Boolean) as User[];
   const isAttending = event.attendeeIds.includes(currentUser.id);
   const isFull = event.attendeeIds.length >= event.maxParticipants;
+  const isOrganizer = event.organizer.id === currentUser.id;
 
   const eventDate = new Date(event.date);
   const formattedDate = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -61,18 +63,40 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
       </div>
       
       <div className="fixed bottom-16 left-0 right-0 max-w-lg mx-auto p-4 bg-white border-t">
-        {isAttending ? (
+        {isOrganizer ? (
+          <div className="flex gap-3">
+            {onDelete && (
+              <button
+                onClick={() => { if (confirm('Delete this event?')) onDelete(event.id); }}
+                className="flex-1 bg-red-50 text-red-500 font-bold py-3 px-4 rounded-lg"
+              >
+                Delete
+              </button>
+            )}
+            {onGoToChat && (
+              <button
+                onClick={() => onGoToChat(event.id)}
+                className="flex-1 bg-primary text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                Group Chat
+              </button>
+            )}
+          </div>
+        ) : isAttending ? (
           <div className="flex gap-3">
             <button
               onClick={() => onLeave(event.id)}
-              className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg transition-colors duration-200"
+              className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg"
             >
               Leave
             </button>
             {onGoToChat && (
               <button
                 onClick={() => onGoToChat(event.id)}
-                className="flex-1 bg-primary text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                className="flex-1 bg-primary text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -85,7 +109,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
           <button
             onClick={() => onJoin(event.id)}
             disabled={isFull}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 disabled:bg-gray-400"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg disabled:bg-gray-400"
           >
             {isFull ? 'Event is Full' : 'Join Group'}
           </button>

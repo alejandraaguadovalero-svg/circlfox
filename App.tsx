@@ -66,6 +66,12 @@ const App: React.FC = () => {
     );
   }, [currentUser.id]);
 
+  const handleDeleteEvent = useCallback((eventId: number) => {
+    setEvents(prev => prev.filter(e => e.id !== eventId));
+    setCurrentView(viewBeforeDetail);
+    setSelectedEventId(null);
+  }, [viewBeforeDetail]);
+
   const handleSendMessage = useCallback((eventId: number, text: string) => {
     const newMessage: Message = {
       id: Date.now(),
@@ -116,6 +122,7 @@ const App: React.FC = () => {
             onBack={navigateBack}
             onJoin={handleJoinEvent}
             onLeave={handleLeaveEvent}
+            onDelete={handleDeleteEvent}
             onGoToChat={navigateToChatDetail}
             onSelectUser={setSelectedProfileUserId}
           />
@@ -180,6 +187,10 @@ const App: React.FC = () => {
           events={events}
           currentUser={currentUser}
           onClose={() => setSelectedProfileUserId(null)}
+          onGoToChat={(eventId) => {
+            setSelectedProfileUserId(null);
+            navigateToChatDetail(eventId);
+          }}
         />
       )}
     </div>

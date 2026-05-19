@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Event } from '../../types';
 import { MapPinIcon, UsersIcon } from '../icons';
 import { User } from '../../types';
@@ -53,26 +53,30 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const onSelectEventRef = useRef(onSelectEvent);
+  const markerEventIds = useRef<Set<number>>(new Set());
   onSelectEventRef.current = onSelectEvent;
 
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!mapContainerRef.current) return;
 
-    const map = window.L.map(mapContainerRef.current).setView([37.7749, -122.4194], 13);
-    mapRef.current = map;
+    if (!mapRef.current) {
+      const map = window.L.map(mapContainerRef.current).setView([37.7749, -122.4194], 13);
+      mapRef.current = map;
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+      setTimeout(() => map.invalidateSize(), 100);
+    }
 
-    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
-
+    const map = mapRef.current;
     events.forEach(event => {
+      if (markerEventIds.current.has(event.id)) return;
+      markerEventIds.current.add(event.id);
       const marker = window.L.marker([event.lat, event.lng]).addTo(map);
       marker.bindPopup(`<b>${event.title}</b><br>${event.location}<br><small>Tap marker to view</small>`);
       marker.on('click', () => onSelectEventRef.current(event.id));
     });
-
-    setTimeout(() => map.invalidateSize(), 100);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events]);
 
   return (
     <div className="bg-gray-100 min-h-screen">

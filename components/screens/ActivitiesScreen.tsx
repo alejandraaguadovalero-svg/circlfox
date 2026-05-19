@@ -102,18 +102,33 @@ const ActivitiesScreen: React.FC = () => {
             <FilterButton key={f} label={f} isActive={activeFilter === f} onClick={() => setActiveFilter(f)} />
           ))}
         </div>
-        <div className="mt-4 divide-y divide-gray-100">
-          {MOCK_ACTIVITIES.map(activity => (
-            <ActivityItem
-              key={activity.id}
-              activity={activity}
-              isFollowing={followedUserIds.has(activity.user.id)}
-              isJoined={activity.relatedEvent ? joinedEventIds.has(activity.relatedEvent.id) : false}
-              onToggleFollow={toggleFollow}
-              onToggleJoin={toggleJoin}
-            />
-          ))}
-        </div>
+        {(() => {
+          const filtered = MOCK_ACTIVITIES.filter(activity => {
+            if (activeFilter === 'All') return true;
+            const keyword = activeFilter.toLowerCase();
+            return (
+              activity.details.toLowerCase().includes(keyword) ||
+              activity.relatedEvent?.title.toLowerCase().includes(keyword) ||
+              activity.relatedEvent?.category.toLowerCase().includes(keyword)
+            );
+          });
+          return (
+            <div className="mt-4 divide-y divide-gray-100">
+              {filtered.length === 0 ? (
+                <p className="text-center text-gray-400 text-sm py-10">No activity for "{activeFilter}"</p>
+              ) : filtered.map(activity => (
+                <ActivityItem
+                  key={activity.id}
+                  activity={activity}
+                  isFollowing={followedUserIds.has(activity.user.id)}
+                  isJoined={activity.relatedEvent ? joinedEventIds.has(activity.relatedEvent.id) : false}
+                  onToggleFollow={toggleFollow}
+                  onToggleJoin={toggleJoin}
+                />
+              ))}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

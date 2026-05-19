@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Event, User } from '../types';
 import { UsersIcon } from './icons';
 
@@ -24,10 +24,28 @@ function timeAgo(dateStr: string): string {
 const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent, onJoin, onLeave }) => {
   const isAttending = event.attendeeIds.includes(currentUser.id);
   const isFull = event.attendeeIds.length >= event.maxParticipants;
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleJoinLeave = (e: React.MouseEvent) => {
     e.stopPropagation();
     isAttending ? onLeave(event.id) : onJoin(event.id);
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    if (navigator.share) {
+      navigator.share({ title: event.title, text: event.description, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleReport = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    alert('Event reported. Thanks for keeping Circl safe!');
   };
 
   return (
@@ -40,7 +58,27 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
           </p>
           <p className="text-xs text-gray-400">{timeAgo(event.date)}</p>
         </div>
-        <button className="ml-auto text-gray-500 text-lg leading-none">···</button>
+        <div className="ml-auto relative">
+          <button
+            onClick={e => { e.stopPropagation(); setShowMenu(v => !v); }}
+            className="text-gray-500 text-lg leading-none px-2"
+          >
+            ···
+          </button>
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={e => { e.stopPropagation(); setShowMenu(false); }} />
+              <div className="absolute right-0 top-7 z-20 bg-white rounded-xl shadow-lg border border-gray-100 w-36 py-1">
+                <button onClick={handleShare} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                  Share event
+                </button>
+                <button onClick={handleReport} className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50">
+                  Report
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="cursor-pointer" onClick={() => onSelectEvent(event.id)}>

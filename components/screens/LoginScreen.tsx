@@ -20,13 +20,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState<'email' | 'password'>('email');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleContinue = () => {
     if (step === 'email') {
-      if (!email) { alert('Please enter your email.'); return; }
+      if (!email || !email.includes('@')) { setEmailError('Please enter a valid email.'); return; }
+      setEmailError('');
       setStep('password');
     } else {
-      if (!password) { alert('Please enter your password.'); return; }
+      if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); return; }
+      setPasswordError('');
       onLogin();
     }
   };
@@ -57,32 +61,38 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           </p>
 
           {step === 'email' ? (
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleContinue()}
-              placeholder="email@domain.com"
-              className="w-full mt-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          ) : (
-            <div className="relative mt-4">
+            <>
               <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                type="email"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setEmailError(''); }}
                 onKeyDown={e => e.key === 'Enter' && handleContinue()}
-                placeholder="Password"
-                autoFocus
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="email@domain.com"
+                className={`w-full mt-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${emailError ? 'border-red-400' : 'border-gray-300'}`}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-              >
-                <EyeIcon show={showPassword} />
-              </button>
+              {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+            </>
+          ) : (
+            <div className="mt-4">
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleContinue()}
+                  placeholder="Password"
+                  autoFocus
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${passwordError ? 'border-red-400' : 'border-gray-300'}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                >
+                  <EyeIcon show={showPassword} />
+                </button>
+              </div>
+              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
             </div>
           )}
 

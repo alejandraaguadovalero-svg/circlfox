@@ -6,9 +6,10 @@ interface UserProfileModalProps {
   events: Event[];
   currentUser: User;
   onClose: () => void;
+  onGoToChat?: (eventId: number) => void;
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, events, currentUser, onClose }) => {
+const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, events, currentUser, onClose, onGoToChat }) => {
   const sharedEvents = events.filter(e =>
     e.attendeeIds.includes(user.id) && e.attendeeIds.includes(currentUser.id)
   );
@@ -65,7 +66,17 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, events, curre
           )}
 
           {/* Message button */}
-          <button className="w-full mt-6 bg-primary text-white font-bold py-3 rounded-xl">
+          <button
+            onClick={() => {
+              if (sharedEvents.length > 0 && onGoToChat) {
+                onClose();
+                onGoToChat(sharedEvents[0].id);
+              } else {
+                alert(`Join an event with ${user.name.split(' ')[0]} to start chatting!`);
+              }
+            }}
+            className="w-full mt-6 bg-primary text-white font-bold py-3 rounded-xl"
+          >
             Message {user.name.split(' ')[0]}
           </button>
         </div>
