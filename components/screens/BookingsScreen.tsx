@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { Event } from '../../types';
 import { MapPinIcon, UsersIcon } from '../icons';
 import { User } from '../../types';
@@ -52,6 +52,8 @@ const EventListItem: React.FC<{event: Event, currentUserId: number, onSelectEven
 const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, onSelectEvent }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
+  const onSelectEventRef = useRef(onSelectEvent);
+  onSelectEventRef.current = onSelectEvent;
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -64,9 +66,9 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
     }).addTo(map);
 
     events.forEach(event => {
-      window.L.marker([event.lat, event.lng])
-        .addTo(map)
-        .bindPopup(`<b>${event.title}</b><br>${event.location}`);
+      const marker = window.L.marker([event.lat, event.lng]).addTo(map);
+      marker.bindPopup(`<b>${event.title}</b><br>${event.location}<br><small>Tap marker to view</small>`);
+      marker.on('click', () => onSelectEventRef.current(event.id));
     });
 
     setTimeout(() => map.invalidateSize(), 100);

@@ -10,9 +10,10 @@ interface EventDetailScreenProps {
   onJoin: (eventId: number) => void;
   onLeave: (eventId: number) => void;
   onGoToChat?: (eventId: number) => void;
+  onSelectUser?: (userId: number) => void;
 }
 
-const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onGoToChat }) => {
+const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onGoToChat, onSelectUser }) => {
   const attendees = event.attendeeIds.map(id => allUsers.find(u => u.id === id)).filter(Boolean) as User[];
   const isAttending = event.attendeeIds.includes(currentUser.id);
   const isFull = event.attendeeIds.length >= event.maxParticipants;
@@ -50,10 +51,10 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
             <h2 className="text-xl font-bold text-gray-900 mb-4">Attendees ({attendees.length})</h2>
             <div className="flex flex-wrap gap-4">
             {attendees.map(user => (
-                <div key={user.id} className="flex flex-col items-center w-16 text-center">
+                <button key={user.id} onClick={() => onSelectUser?.(user.id)} className="flex flex-col items-center w-16 text-center">
                     <img src={user.avatarUrl} alt={user.name} className="w-12 h-12 rounded-full" />
                     <p className="text-xs mt-1 text-gray-600 truncate w-full">{user.name}</p>
-                </div>
+                </button>
             ))}
             </div>
         </div>

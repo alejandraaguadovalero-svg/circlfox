@@ -9,6 +9,7 @@ import BookingsScreen from './components/screens/BookingsScreen';
 import ActivitiesScreen from './components/screens/ActivitiesScreen';
 import ChatListScreen from './components/screens/ChatListScreen';
 import ChatDetailScreen from './components/screens/ChatDetailScreen';
+import UserProfileModal from './components/UserProfileModal';
 import BottomNav from './components/BottomNav';
 import LoginScreen from './components/screens/LoginScreen';
 import OpenScreen from './components/screens/OpenScreen';
@@ -25,6 +26,8 @@ const App: React.FC = () => {
   const [selectedChatEventId, setSelectedChatEventId] = useState<number | null>(null);
   const [viewBeforeDetail, setViewBeforeDetail] = useState<View>('home');
   const [eventMessages, setEventMessages] = useState<Record<number, Message[]>>(MOCK_EVENT_MESSAGES);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<number | null>(null);
+  const [lastReadTimestamps, setLastReadTimestamps] = useState<Record<number, string>>({});
 
   const currentUser = users.find(u => u.id === CURRENT_USER_ID)!;
 
@@ -89,8 +92,17 @@ const App: React.FC = () => {
 
   const navigateToChatDetail = (eventId: number) => {
     setSelectedChatEventId(eventId);
+    setLastReadTimestamps(prev => ({ ...prev, [eventId]: new Date().toISOString() }));
     setCurrentView('chatDetail');
   };
+
+  const chatUnreadCount = events
+    .filter(e => e.attendeeIds.includes(currentUser.id))
+    .filter(event => {
+      const msgs = eventMessages[event.id] ?? [];
+      const lastRead = lastReadTimestamps[event.id];
+      return msgs.some(m => m.senderId !== currentUser.id && (!lastRead || new Date(m.timestamp) > new Date(lastRead)));
+    }).length;
 
   const renderContent = () => {
     if (currentView === 'eventDetail' && selectedEventId) {
@@ -105,6 +117,7 @@ const App: React.FC = () => {
             onJoin={handleJoinEvent}
             onLeave={handleLeaveEvent}
             onGoToChat={navigateToChatDetail}
+            onSelectUser={setSelectedProfileUserId}
           />
         );
       }
@@ -147,6 +160,8 @@ const App: React.FC = () => {
   if (appState === 'open') return <OpenScreen onEnter={handleEnter} />;
   if (appState === 'login') return <LoginScreen onLogin={handleLogin} />;
 
+  const selectedProfileUser = selectedProfileUserId ? users.find(u => u.id === selectedProfileUserId) : null;
+
   return (
     <div className="max-w-lg mx-auto bg-white min-h-screen flex flex-col font-sans">
       <main className="flex-grow">
@@ -156,6 +171,15 @@ const App: React.FC = () => {
         <BottomNav
           currentView={currentView}
           setCurrentView={setCurrentView as (view: 'home' | 'bookings' | 'create' | 'chat' | 'profile') => void}
+          badges={{ chat: chatUnreadCount }}
+        />
+      )}
+      {selectedProfileUser && (
+        <UserProfileModal
+          user={selectedProfileUser}
+          events={events}
+          currentUser={currentUser}
+          onClose={() => setSelectedProfileUserId(null)}
         />
       )}
     </div>

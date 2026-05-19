@@ -74,6 +74,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const [location, setLocation] = useState('');
   const [maxParticipants, setMaxParticipants] = useState('10');
   const [selectedImage, setSelectedImage] = useState<string>(CATEGORY_IMAGES[Category.SPORTS][0]);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleCategoryChange = (cat: Category) => {
     setCategory(cat);
@@ -85,17 +86,20 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
       alert('Please fill out all fields.');
       return;
     }
-    onCreateEvent({
-      title,
-      description,
-      location,
-      date: new Date(date).toISOString(),
-      maxParticipants: parseInt(maxParticipants, 10),
-      category,
-      imageUrl: selectedImage.replace('w=400', 'w=800'),
-      lat: 45.0703,
-      lng: 7.6869,
-    });
+    setShowSuccess(true);
+    setTimeout(() => {
+      onCreateEvent({
+        title,
+        description,
+        location,
+        date: new Date(date).toISOString(),
+        maxParticipants: parseInt(maxParticipants, 10),
+        category,
+        imageUrl: selectedImage.replace('w=400', 'w=800'),
+        lat: 45.0703,
+        lng: 7.6869,
+      });
+    }, 1500);
   };
 
   return (
@@ -218,6 +222,21 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           />
         </div>
       </div>
+
+      {/* Success overlay */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-xl font-bold text-gray-900">Event Created!</p>
+            <p className="text-gray-500 text-sm">Your event is now live</p>
+          </div>
+        </div>
+      )}
 
       {/* Submit */}
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-4 bg-white border-t">

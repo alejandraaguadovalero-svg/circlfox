@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Event, User } from '../../types';
+import { Event, User, Category } from '../../types';
 import EventCard from '../EventCard';
 
 interface HomeScreenProps {
@@ -17,6 +17,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
   const [activeTab, setActiveTab] = useState<Tab>('foryou');
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
 
   const visibleEvents = events
     .filter(event => {
@@ -35,7 +36,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
         event.location.toLowerCase().includes(q) ||
         event.category.toLowerCase().includes(q)
       );
-    });
+    })
+    .filter(event => !activeCategory || event.category === activeCategory);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -77,6 +79,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
             For you
           </button>
         </div>
+
+        {/* Category filter chips */}
+        <div className="flex gap-2 overflow-x-auto pb-3 pt-2 no-scrollbar">
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${!activeCategory ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}
+          >
+            All
+          </button>
+          {Object.values(Category).map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${activeCategory === cat ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </header>
 
       <div className="p-4">
@@ -90,9 +111,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-400 text-sm py-12">
-            {searchQuery ? 'No events match your search.' : 'No events yet — join some to see them here.'}
-          </p>
+          <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p className="font-semibold text-gray-700">
+              {searchQuery
+                ? 'No events match your search'
+                : activeCategory
+                ? `No ${activeCategory} events yet`
+                : activeTab === 'following'
+                ? 'No events joined yet'
+                : 'No events around you yet'}
+            </p>
+            <p className="text-gray-400 text-sm mt-1">
+              {activeTab === 'following'
+                ? 'Join events from the For You tab to see them here'
+                : 'Check back soon or create your own'}
+            </p>
+          </div>
         )}
       </div>
     </div>
