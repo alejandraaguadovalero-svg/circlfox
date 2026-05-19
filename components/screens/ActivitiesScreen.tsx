@@ -61,7 +61,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, isFollowing, isJo
   );
 };
 
-const FILTERS = ['All', 'Football', 'Coffee', 'Clubbing'];
+const FILTERS = ['All', 'Sports', 'Drinks', 'Music', 'Outdoors', 'Arts', 'Food'];
 
 const FilterButton: React.FC<{ label: string; isActive?: boolean; onClick: () => void }> = ({ label, isActive, onClick }) => (
   <button

@@ -78,8 +78,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-6 text-center">
-          <StatCard icon={<ChartBarIcon className="w-6 h-6 text-primary" />} label="Events Created" value={createdEvents.length.toString()} change="+20% month over month" />
-          <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Events Attended" value={attendedEvents.length.toString()} change="+33% month over month" />
+          <StatCard icon={<ChartBarIcon className="w-6 h-6 text-primary" />} label="Events Created" value={createdEvents.length.toString()} />
+          <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Events Attended" value={attendedEvents.length.toString()} />
         </div>
 
         <div className="mt-4">
@@ -127,14 +127,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
   );
 };
 
-const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string; change: string }> = ({ icon, label, value, change }) => (
+const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <div className="flex items-center justify-center gap-2">
       {icon}
-      <span className="font-semibold text-gray-700">{label}</span>
+      <span className="font-semibold text-gray-700 text-sm">{label}</span>
     </div>
     <p className="text-4xl font-bold mt-2">{value}</p>
-    <p className="text-xs text-green-500 mt-1">{change}</p>
   </div>
 );
 
