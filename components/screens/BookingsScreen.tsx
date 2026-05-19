@@ -62,8 +62,10 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
     if (!mapRef.current) {
       const map = window.L.map(mapContainerRef.current).setView([37.7749, -122.4194], 13);
       mapRef.current = map;
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20,
       }).addTo(map);
       setTimeout(() => map.invalidateSize(), 100);
     }

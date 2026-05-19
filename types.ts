@@ -31,6 +31,7 @@ export enum Category {
   FOOD = 'Food',
   MUSIC = 'Music',
   OUTDOORS = 'Outdoors',
+  OTHER = 'Other',
 }
 
 export enum ActivityType {

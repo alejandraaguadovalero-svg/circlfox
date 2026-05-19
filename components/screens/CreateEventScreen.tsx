@@ -49,6 +49,12 @@ const CATEGORY_IMAGES: Record<Category, string[]> = {
     'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=400',
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=400',
   ],
+  [Category.OTHER]: [
+    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400',
+    'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=400',
+    'https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=400',
+    'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=400',
+  ],
 };
 
 const CATEGORY_EMOJIS: Record<Category, string> = {
@@ -59,6 +65,7 @@ const CATEGORY_EMOJIS: Record<Category, string> = {
   [Category.FOOD]: '🍜',
   [Category.MUSIC]: '🎵',
   [Category.OUTDOORS]: '🌿',
+  [Category.OTHER]: '✨',
 };
 
 const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, onCancel }) => {
@@ -74,6 +81,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const [location, setLocation] = useState('');
   const [maxParticipants, setMaxParticipants] = useState('10');
   const [selectedImage, setSelectedImage] = useState<string>(CATEGORY_IMAGES[Category.SPORTS][0]);
+  const [eventType, setEventType] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleCategoryChange = (cat: Category) => {
@@ -84,6 +92,10 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const handleSubmit = () => {
     if (!title.trim() || !description.trim() || !location.trim() || !maxParticipants) {
       alert('Please fill out all fields.');
+      return;
+    }
+    if (category === Category.OTHER && !eventType.trim()) {
+      alert('Please describe your event type.');
       return;
     }
     setShowSuccess(true);
@@ -135,6 +147,18 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
               </button>
             ))}
           </div>
+          {category === Category.OTHER && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-400 mb-1">Briefly describe what kind of event this is</p>
+              <input
+                type="text"
+                value={eventType}
+                onChange={e => setEventType(e.target.value)}
+                placeholder="e.g. Board games, Language exchange, Dog walk..."
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-300"
+              />
+            </div>
+          )}
         </div>
 
         {/* Image picker */}
