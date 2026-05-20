@@ -14,8 +14,17 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState(emailHint?.split('@')[0] ?? '');
-  const [age, setAge] = useState('');
+  const [dob, setDob] = useState('');
   const [bio, setBio] = useState('');
+
+  const calcAge = (dobStr: string): number => {
+    const birth = new Date(dobStr);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  };
   const [interests, setInterests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,9 +50,10 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
     if (!lastName.trim()) { setError('Please enter your surname.'); return; }
     if (!username.trim()) { setError('Please enter a username.'); return; }
     if (username.includes(' ')) { setError('Username cannot contain spaces.'); return; }
-    if (!age || isNaN(Number(age)) || Number(age) < 13 || Number(age) > 120) {
-      setError('Please enter a valid age.'); return;
-    }
+    if (!dob) { setError('Please enter your date of birth.'); return; }
+    const age = calcAge(dob);
+    if (age < 17) { setError('You must be at least 17 years old to join Circl.'); return; }
+    if (age > 32) { setError('Circl is for people aged 17–32. Sorry!'); return; }
 
     setLoading(true);
     setError('');
@@ -68,7 +78,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         username: username.trim().toLowerCase(),
-        age: Number(age),
+        age,
         city: 'Madrid',
         bio: bio.trim() || null,
         interests,
@@ -89,7 +99,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
       id: userId,
       name: fullName,
       username: username.trim().toLowerCase(),
-      age: Number(age),
+      age,
       city: 'Madrid',
       bio: bio.trim(),
       interests,
@@ -167,16 +177,16 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Age *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Date of birth *</label>
           <input
-            type="number"
-            value={age}
-            onChange={e => { setAge(e.target.value); setError(''); }}
-            placeholder="e.g. 22"
-            min="13"
-            max="120"
+            type="date"
+            value={dob}
+            onChange={e => { setDob(e.target.value); setError(''); }}
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 17)).toISOString().split('T')[0]}
+            min={new Date(new Date().setFullYear(new Date().getFullYear() - 32)).toISOString().split('T')[0]}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          <p className="text-xs text-gray-400 mt-1">You must be between 17 and 32 years old</p>
         </div>
 
         <div>
