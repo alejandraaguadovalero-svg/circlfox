@@ -261,7 +261,7 @@ const App: React.FC = () => {
       case 'bookings':
         return <BookingsScreen events={events} currentUser={currentUser} onSelectEvent={navigateToEventDetail} />;
       case 'activities':
-        return <ActivitiesScreen />;
+        return <ActivitiesScreen currentUser={currentUser} events={events} />;
       case 'chat':
         return <ChatListScreen events={events} currentUser={currentUser} eventMessages={eventMessages} onSelectChat={navigateToChatDetail} />;
       default:
@@ -280,7 +280,7 @@ const App: React.FC = () => {
           </div>
         ) : renderContent()}
       </main>
-      {currentView !== 'chatDetail' && (
+      {currentView !== 'chatDetail' && currentView !== 'create' && (
         <BottomNav
           currentView={currentView}
           setCurrentView={setCurrentView as (view: 'home' | 'activities' | 'create' | 'chat' | 'profile') => void}
