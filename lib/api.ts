@@ -34,7 +34,7 @@ function dbRowToEvent(row: any): Event {
 export async function fetchEvents(): Promise<Event[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('*, profiles!creator_id(full_name, avatar_url, age, city, bio, interests), event_attendees(user_id)')
+    .select('*, profiles!creator_id(full_name, username, avatar_url, age, city, bio, interests), event_attendees(user_id)')
     .order('event_date', { ascending: true });
   if (error) { console.error('fetchEvents:', error); return []; }
   return (data ?? []).map(dbRowToEvent);

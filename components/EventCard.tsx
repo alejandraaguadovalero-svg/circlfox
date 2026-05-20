@@ -100,7 +100,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
 
       <div className="p-4">
         <h3 className="font-bold text-lg text-secondary">{event.title}</h3>
-        <p className="text-gray-500 text-sm mt-1">{event.description.substring(0, 100)}...</p>
+        <p className="text-gray-500 text-sm mt-1">{event.description.length > 100 ? event.description.substring(0, 100) + '…' : event.description}</p>
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center">
             <div className="flex items-center gap-1.5 text-gray-500">

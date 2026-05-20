@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Event, User, Message } from './types';
-import { MOCK_USERS } from './constants';
+
 import HomeScreen from './components/screens/HomeScreen';
 import EventDetailScreen from './components/screens/EventDetailScreen';
 import CreateEventScreen from './components/screens/CreateEventScreen';
@@ -131,6 +131,11 @@ const App: React.FC = () => {
     setPendingEmail(null);
     setAppState('main');
   };
+
+  const handleUpdateUser = useCallback((updated: User) => {
+    setCurrentUser(updated);
+    setUsers(prev => [...prev.filter(u => u.id !== updated.id), updated]);
+  }, []);
 
   const handleCreateEvent = useCallback(async (newEventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => {
     if (!currentUser) return;
@@ -269,7 +274,7 @@ const App: React.FC = () => {
       case 'create':
         return <CreateEventScreen onCreateEvent={handleCreateEvent} onCancel={() => setCurrentView('home')} />;
       case 'profile':
-        return <ProfileScreen currentUser={currentUser} events={events} onLogout={handleLogout} />;
+        return <ProfileScreen currentUser={currentUser} events={events} onLogout={handleLogout} onUpdateUser={handleUpdateUser} />;
       case 'bookings':
         return <BookingsScreen events={events} currentUser={currentUser} onSelectEvent={navigateToEventDetail} />;
       case 'activities':
