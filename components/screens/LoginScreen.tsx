@@ -42,7 +42,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
     let signInError: any;
     try {
-      const result = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 8000);
+      const result = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 25000);
       signInError = result.error;
     } catch (e: any) {
       setPasswordError(e.message);
@@ -61,7 +61,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       // Try creating a new account — if this also fails, the email exists with a different password
       let signUpData: any, signUpError: any;
       try {
-        const result = await withTimeout(supabase.auth.signUp({ email, password }), 8000);
+        const result = await withTimeout(supabase.auth.signUp({ email, password }), 25000);
         signUpData = result.data; signUpError = result.error;
       } catch (e: any) {
         setPasswordError(e.message); setLoading(false); return;

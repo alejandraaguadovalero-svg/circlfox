@@ -63,7 +63,7 @@ const App: React.FC = () => {
   const fetchProfile = useCallback(async (userId: string, email?: string) => {
     try {
       const profilePromise = supabase.from('profiles').select('*').eq('id', userId).single();
-      const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000));
+      const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 25000));
       const { data: profile } = await Promise.race([profilePromise, timeoutPromise]) as any;
       const displayName = profile?.full_name || profile?.name || '';
       if (profile && displayName.trim() !== '' && profile.age) {
