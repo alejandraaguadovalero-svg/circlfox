@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { User } from '../../types';
 
@@ -18,6 +18,16 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
   const [interests, setInterests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
 
   const toggleInterest = (interest: string) => {
     setInterests(prev =>
@@ -34,7 +44,15 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
     setLoading(true);
     setError('');
 
-    const avatarUrl = `https://i.pravatar.cc/150?u=${userId}`;
+    let avatarUrl = `https://i.pravatar.cc/150?u=${userId}`;
+    if (avatarFile) {
+      const ext = avatarFile.name.split('.').pop();
+      const path = `${userId}/avatar.${ext}`;
+      const { data: uploadData } = await supabase.storage.from('avatars').upload(path, avatarFile, { upsert: true });
+      if (uploadData) {
+        avatarUrl = supabase.storage.from('avatars').getPublicUrl(uploadData.path).data.publicUrl;
+      }
+    }
 
     const { error: dbError } = await supabase
       .from('profiles')
@@ -74,6 +92,25 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 pb-32 space-y-4">
+        {/* Avatar picker */}
+        <div className="flex flex-col items-center py-2">
+          <button onClick={() => fileInputRef.current?.click()} className="relative">
+            <img
+              src={avatarPreview ?? `https://i.pravatar.cc/150?u=${userId}`}
+              alt="Avatar"
+              className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
+            />
+            <div className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 shadow">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          </button>
+          <p className="text-xs text-gray-400 mt-2">Tap to add a photo</p>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} />
+        </div>
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Name *</label>
           <input

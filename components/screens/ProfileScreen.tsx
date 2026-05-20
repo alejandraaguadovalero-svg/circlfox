@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User, Event } from '../../types';
 import { MapPinIcon, ChartBarIcon, UsersIcon } from '../icons';
+import { supabase } from '../../lib/supabase';
 
 interface ProfileScreenProps {
   currentUser: User;
@@ -33,6 +34,9 @@ const SettingsRow: React.FC<{ label: string; enabled: boolean; onChange: () => v
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLogout }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState({
     eventNotifications: true,
     messageNotifications: true,
@@ -43,6 +47,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
 
   const toggle = (key: keyof typeof settings) =>
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    const ext = file.name.split('.').pop();
+    const path = `${currentUser.id}/avatar.${ext}`;
+    const { data } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+    if (data) {
+      const url = supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl;
+      setAvatarUrl(url);
+      await supabase.from('profiles').update({ avatar_url: url }).eq('id', currentUser.id);
+    }
+    setUploadingAvatar(false);
+  };
 
   const attendedEvents = events.filter(event => event.attendeeIds.includes(currentUser.id) && new Date(event.date) < new Date());
   const createdEvents = events.filter(event => event.organizer.id === currentUser.id);
@@ -63,7 +82,23 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
 
       <div className="p-4">
         <div className="flex flex-col items-center text-center">
-          <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-24 h-24 rounded-full shadow-lg" />
+          <button onClick={() => fileInputRef.current?.click()} className="relative" disabled={uploadingAvatar}>
+            <img src={avatarUrl} alt={currentUser.name} className="w-24 h-24 rounded-full shadow-lg object-cover" />
+            <div className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 shadow">
+              {uploadingAvatar ? (
+                <svg className="h-4 w-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              )}
+            </div>
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           <h2 className="text-2xl font-bold text-gray-800 mt-4">{currentUser.name}</h2>
           <p className="text-gray-500">{currentUser.bio}</p>
         </div>

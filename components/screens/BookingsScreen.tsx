@@ -19,7 +19,7 @@ const Header: React.FC = () => (
         <div/>
         <div className="flex items-center gap-2">
             <MapPinIcon className="w-5 h-5"/>
-            <h1 className="text-lg font-bold text-secondary">San Francisco</h1>
+            <h1 className="text-lg font-bold text-secondary">Madrid</h1>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -53,14 +53,14 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const onSelectEventRef = useRef(onSelectEvent);
-  const markerEventIds = useRef<Set<number>>(new Set());
+  const markerEventIds = useRef<Set<string>>(new Set());
   onSelectEventRef.current = onSelectEvent;
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
     if (!mapRef.current) {
-      const map = window.L.map(mapContainerRef.current).setView([37.7749, -122.4194], 13);
+      const map = window.L.map(mapContainerRef.current).setView([40.4168, -3.7038], 13);
       mapRef.current = map;
       window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
