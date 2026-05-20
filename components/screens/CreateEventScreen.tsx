@@ -160,7 +160,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     if (!description.trim()) errs.push('Description is required.');
     if (category === Category.OTHER && !eventType.trim()) errs.push('Please describe your event type.');
     const max = parseInt(maxParticipants, 10);
-    if (isNaN(max) || max < 2 || max > 50) errs.push('Max attendees must be between 2 and 50.');
+    if (isNaN(max) || max < 2 || max > 30) errs.push('Max attendees must be between 2 and 30.');
     if (errs.length) { setErrors(errs); return; }
     setErrors([]);
     setShowSuccess(true);
@@ -292,13 +292,13 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
             <span className="font-semibold text-gray-800 flex-shrink-0">Max Attendees</span>
             <div className="flex items-center gap-2">
-              <input type="number" min="2" max="50" value={maxParticipants}
+              <input type="number" min="2" max="30" value={maxParticipants}
                 onChange={e => {
-                  const v = Math.min(50, Math.max(2, parseInt(e.target.value) || 2));
+                  const v = Math.min(30, Math.max(2, parseInt(e.target.value) || 2));
                   setMaxParticipants(v.toString());
                 }}
                 className="text-right text-gray-600 focus:outline-none bg-transparent w-16" />
-              <span className="text-xs text-gray-400">/ 50</span>
+              <span className="text-xs text-gray-400">/ 30</span>
             </div>
           </div>
         </div>
