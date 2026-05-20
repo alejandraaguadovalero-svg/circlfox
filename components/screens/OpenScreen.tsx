@@ -24,16 +24,6 @@ const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
         <p className="text-white/80 text-base font-medium text-center leading-relaxed">
           Move cities. Find your people.<br />Always have a Circl.
         </p>
-
-        {/* Social proof */}
-        <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-2">
-          <div className="flex -space-x-2">
-            {['a1', 'a2', 'a3'].map(u => (
-              <img key={u} src={`https://i.pravatar.cc/32?u=${u}`} className="w-6 h-6 rounded-full border-2 border-white/40 object-cover" alt="" />
-            ))}
-          </div>
-          <span className="text-white/90 text-xs font-semibold">1,200+ people in Madrid</span>
-        </div>
       </div>
 
       <button
