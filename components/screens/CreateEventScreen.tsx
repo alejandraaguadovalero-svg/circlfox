@@ -53,7 +53,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     locationDebounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=5&countrycodes=es&viewbox=-4.6,40.7,-3.1,40.1&bounded=0&accept-language=es,en`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location + ', Madrid')}&format=json&limit=5&countrycodes=es&viewbox=-3.85,40.55,-3.55,40.35&bounded=1&accept-language=es,en`,
           { headers: { 'Accept-Language': 'es,en' } }
         );
         const data: LocationSuggestion[] = await res.json();
