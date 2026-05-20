@@ -37,8 +37,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setPasswordError('');
     setLoading(true);
 
-    // Try sign in first
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
+      Promise.race([promise, new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Request timed out. Check your connection.')), ms))]);
+
+    let signInError: any;
+    try {
+      const result = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 8000);
+      signInError = result.error;
+    } catch (e: any) {
+      setPasswordError(e.message);
+      setLoading(false);
+      return;
+    }
 
     if (!signInError) {
       onLogin();
@@ -49,8 +59,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
     if (isInvalidCreds) {
       // Try creating a new account — if this also fails, the email exists with a different password
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (!signUpError && signUpData.user) {
+      let signUpData: any, signUpError: any;
+      try {
+        const result = await withTimeout(supabase.auth.signUp({ email, password }), 8000);
+        signUpData = result.data; signUpError = result.error;
+      } catch (e: any) {
+        setPasswordError(e.message); setLoading(false); return;
+      }
+      if (!signUpError && signUpData?.user) {
         // Create stub profile so the trigger failure doesn't block signup
         await supabase.from('profiles').upsert({
           id: signUpData.user.id,
