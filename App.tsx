@@ -102,7 +102,7 @@ const App: React.FC = () => {
         setEvents([]);
         setEventMessages({});
         setAppState('login');
-      } else if (event === 'SIGNED_IN' && session) {
+      } else if (event === 'SIGNED_IN' && session && appState !== 'main') {
         await fetchProfile(session.user.id, session.user.email);
       }
     });
