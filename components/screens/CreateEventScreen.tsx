@@ -7,57 +7,6 @@ interface CreateEventScreenProps {
   onCancel: () => void;
 }
 
-const CATEGORY_IMAGES: Record<Category, string[]> = {
-  [Category.SPORTS]: [
-    'https://images.unsplash.com/photo-1541625232279-d69a531a7248?q=80&w=800',
-    'https://images.unsplash.com/photo-1552667466-07770ae110d0?q=80&w=800',
-    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800',
-    'https://images.unsplash.com/photo-1559348331-57d345336c32?q=80&w=800',
-  ],
-  [Category.DRINKS]: [
-    'https://images.unsplash.com/photo-1543007630-9710e4a00a20?q=80&w=800',
-    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=800',
-    'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
-    'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?q=80&w=800',
-  ],
-  [Category.ARTS]: [
-    'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800',
-    'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=800',
-    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=800',
-    'https://images.unsplash.com/photo-1531913223931-b0d3198229ee?q=80&w=800',
-  ],
-  [Category.STUDY]: [
-    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800',
-    'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?q=80&w=800',
-    'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=800',
-    'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800',
-  ],
-  [Category.FOOD]: [
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800',
-    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=800',
-    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800',
-    'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=800',
-  ],
-  [Category.MUSIC]: [
-    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800',
-    'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=800',
-    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=800',
-    'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?q=80&w=800',
-  ],
-  [Category.OUTDOORS]: [
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800',
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800',
-    'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=800',
-    'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=800',
-  ],
-  [Category.OTHER]: [
-    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800',
-    'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=800',
-    'https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=800',
-    'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=800',
-  ],
-};
-
 const CATEGORY_EMOJIS: Record<Category, string> = {
   [Category.SPORTS]: '⚽',
   [Category.DRINKS]: '🍹',
@@ -89,8 +38,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number }>({ lat: 40.4168, lng: -3.7038 });
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [maxParticipants, setMaxParticipants] = useState('10');
-  const [selectedImage, setSelectedImage] = useState<string>(CATEGORY_IMAGES[Category.SPORTS][0]);
+  const [maxParticipants, setMaxParticipants] = useState(10);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [eventType, setEventType] = useState('');
@@ -100,10 +48,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const locationDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!location.trim() || location.length < 3) {
-      setSuggestions([]);
-      return;
-    }
+    if (!location.trim() || location.length < 3) { setSuggestions([]); return; }
     if (locationDebounceRef.current) clearTimeout(locationDebounceRef.current);
     locationDebounceRef.current = setTimeout(async () => {
       try {
@@ -114,24 +59,16 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
         const data: LocationSuggestion[] = await res.json();
         setSuggestions(data);
         setShowSuggestions(true);
-      } catch {
-        setSuggestions([]);
-      }
+      } catch { setSuggestions([]); }
     }, 400);
   }, [location]);
 
   const selectSuggestion = (s: LocationSuggestion) => {
-    // Show a short readable name instead of the full Nominatim string
     const parts = s.display_name.split(',');
     setLocation(parts.slice(0, 2).join(',').trim());
     setLocationCoords({ lat: parseFloat(s.lat), lng: parseFloat(s.lon) });
     setSuggestions([]);
     setShowSuggestions(false);
-  };
-
-  const handleCategoryChange = (cat: Category) => {
-    setCategory(cat);
-    if (!uploadedImageUrl) setSelectedImage(CATEGORY_IMAGES[cat][0]);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +79,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { data, error } = await supabase.storage.from('event-images').upload(path, file);
     if (error || !data) {
-      alert(`Upload failed: ${error?.message ?? 'unknown error'}. Please try a preset image instead.`);
+      alert(`Upload failed: ${error?.message ?? 'unknown error'}.`);
       setUploadingImage(false);
       return;
     }
@@ -151,16 +88,12 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     setUploadingImage(false);
   };
 
-  const currentImageUrl = uploadedImageUrl ?? selectedImage;
-
   const handleSubmit = () => {
     const errs: string[] = [];
     if (!title.trim()) errs.push('Event title is required.');
     if (!location.trim()) errs.push('Location is required.');
     if (!description.trim()) errs.push('Description is required.');
     if (category === Category.OTHER && !eventType.trim()) errs.push('Please describe your event type.');
-    const max = parseInt(maxParticipants, 10);
-    if (isNaN(max) || max < 2 || max > 30) errs.push('Max attendees must be between 2 and 30.');
     if (errs.length) { setErrors(errs); return; }
     setErrors([]);
     setShowSuccess(true);
@@ -170,9 +103,9 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
         description: description.trim(),
         location: location.trim(),
         date: new Date(date).toISOString(),
-        maxParticipants: max,
+        maxParticipants,
         category,
-        imageUrl: currentImageUrl,
+        imageUrl: uploadedImageUrl ?? '',
         lat: locationCoords.lat,
         lng: locationCoords.lng,
       });
@@ -188,16 +121,16 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           </svg>
         </button>
         <h1 className="text-xl font-bold text-secondary mx-auto">Create Event</h1>
-        <div className="w-6" />
+        <button onClick={handleSubmit} className="text-primary font-bold text-sm">Publish</button>
       </header>
 
-      <div className="flex-1 overflow-y-auto pb-28">
+      <div className="flex-1 overflow-y-auto pb-32">
         {/* Category */}
         <div className="px-4 pt-4">
           <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Category</p>
           <div className="flex flex-wrap gap-2">
             {Object.values(Category).map(cat => (
-              <button key={cat} onClick={() => handleCategoryChange(cat)}
+              <button key={cat} onClick={() => setCategory(cat)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${category === cat ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}>
                 <span>{CATEGORY_EMOJIS[cat]}</span><span>{cat}</span>
               </button>
@@ -216,32 +149,26 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
         {/* Event Image */}
         <div className="px-4 mt-5">
           <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Event Image</p>
-          {/* Preset grid */}
-          <div className="grid grid-cols-4 gap-2 mb-3">
-            {CATEGORY_IMAGES[category].map(url => (
-              <button key={url} onClick={() => { setSelectedImage(url); setUploadedImageUrl(null); }}
-                className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${!uploadedImageUrl && selectedImage === url ? 'border-primary scale-95' : 'border-transparent'}`}>
-                <img src={url} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-            {/* Upload from camera roll */}
-            <button onClick={() => fileInputRef.current?.click()}
-              className={`aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all ${uploadedImageUrl ? 'border-primary bg-primary/5' : 'border-gray-300 bg-gray-50'}`}>
-              {uploadingImage ? (
-                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-xs text-gray-400 leading-tight text-center">Your photo</span>
-                </>
-              )}
-            </button>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-          </div>
-          {/* Preview */}
-          <img src={currentImageUrl} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+          <button onClick={() => fileInputRef.current?.click()}
+            className="w-full h-44 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center gap-2 overflow-hidden relative">
+            {uploadingImage ? (
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            ) : uploadedImageUrl ? (
+              <img src={uploadedImageUrl} alt="Event" className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm font-semibold text-gray-500">Add a photo</p>
+                <p className="text-xs text-gray-400">Tap to choose from your camera roll</p>
+              </>
+            )}
+          </button>
+          {uploadedImageUrl && (
+            <button onClick={() => setUploadedImageUrl(null)} className="mt-2 text-xs text-red-400 font-medium">Remove photo</button>
+          )}
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
         </div>
 
         {/* Form fields */}
@@ -275,13 +202,11 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
               <div className="absolute left-0 right-0 top-full bg-white rounded-xl shadow-lg border border-gray-100 z-20 mt-1 overflow-hidden">
                 {suggestions.map((s, i) => {
                   const parts = s.display_name.split(',');
-                  const name = parts[0].trim();
-                  const sub = parts.slice(1, 3).join(',').trim();
                   return (
                     <button key={i} onMouseDown={() => selectSuggestion(s)}
                       className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0">
-                      <p className="text-sm font-semibold text-gray-800 truncate">{name}</p>
-                      <p className="text-xs text-gray-400 truncate">{sub}</p>
+                      <p className="text-sm font-semibold text-gray-800 truncate">{parts[0].trim()}</p>
+                      <p className="text-xs text-gray-400 truncate">{parts.slice(1, 3).join(',').trim()}</p>
                     </button>
                   );
                 })}
@@ -289,16 +214,15 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
             )}
           </div>
 
+          {/* Max Attendees stepper */}
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 flex-shrink-0">Max Attendees</span>
-            <div className="flex items-center gap-2">
-              <input type="number" min="2" max="30" value={maxParticipants}
-                onChange={e => {
-                  const v = Math.min(30, Math.max(2, parseInt(e.target.value) || 2));
-                  setMaxParticipants(v.toString());
-                }}
-                className="text-right text-gray-600 focus:outline-none bg-transparent w-16" />
-              <span className="text-xs text-gray-400">/ 30</span>
+            <span className="font-semibold text-gray-800">Max Attendees</span>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setMaxParticipants(v => Math.max(2, v - 1))}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-bold text-lg leading-none">−</button>
+              <span className="text-gray-800 font-semibold w-6 text-center">{maxParticipants}</span>
+              <button onClick={() => setMaxParticipants(v => Math.min(30, v + 1))}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-bold text-lg leading-none">+</button>
             </div>
           </div>
         </div>
@@ -334,10 +258,10 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-4 bg-white border-t">
+      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-4 pb-8 bg-white border-t">
         <button onClick={handleSubmit}
-          className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-xl transition-colors">
-          Create Event
+          className="w-full bg-primary text-white font-bold py-4 rounded-xl text-base">
+          Publish Event
         </button>
       </div>
     </div>
