@@ -6,7 +6,7 @@ interface UserProfileModalProps {
   events: Event[];
   currentUser: User;
   onClose: () => void;
-  onGoToChat?: (eventId: number) => void;
+  onGoToChat?: (eventId: string) => void;
 }
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, events, currentUser, onClose, onGoToChat }) => {

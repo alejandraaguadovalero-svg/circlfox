@@ -5,11 +5,11 @@ import EventCard from '../EventCard';
 interface HomeScreenProps {
   events: Event[];
   currentUser: User;
-  onSelectEvent: (eventId: number) => void;
+  onSelectEvent: (eventId: string) => void;
   onNavigateToCreate: () => void;
   onNavigateToMap: () => void;
-  onJoin: (eventId: number) => void;
-  onLeave: (eventId: number) => void;
+  onJoin: (eventId: string) => void;
+  onLeave: (eventId: string) => void;
 }
 
 type Tab = 'following' | 'foryou';

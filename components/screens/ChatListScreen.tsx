@@ -4,8 +4,8 @@ import { Event, User, Message } from '../../types';
 interface ChatListScreenProps {
   events: Event[];
   currentUser: User;
-  eventMessages: Record<number, Message[]>;
-  onSelectChat: (eventId: number) => void;
+  eventMessages: Record<string, Message[]>;
+  onSelectChat: (eventId: string) => void;
 }
 
 function timeAgo(iso: string): string {

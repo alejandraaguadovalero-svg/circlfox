@@ -11,7 +11,7 @@ declare global {
 interface BookingsScreenProps {
   events: Event[];
   currentUser: User;
-  onSelectEvent: (eventId: number) => void;
+  onSelectEvent: (eventId: string) => void;
 }
 
 const Header: React.FC = () => (
@@ -27,7 +27,7 @@ const Header: React.FC = () => (
     </header>
 );
 
-const EventListItem: React.FC<{event: Event, currentUserId: number, onSelectEvent: (id: number) => void}> = ({ event, currentUserId, onSelectEvent }) => {
+const EventListItem: React.FC<{event: Event, currentUserId: string, onSelectEvent: (id: string) => void}> = ({ event, currentUserId, onSelectEvent }) => {
     const isAttending = event.attendeeIds.includes(currentUserId);
     return (
         <div onClick={() => onSelectEvent(event.id)} className="flex gap-4 p-2 bg-white rounded-lg shadow-sm cursor-pointer">

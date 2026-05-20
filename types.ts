@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface Event {
-  id: number;
+  id: string;
   title: string;
   description: string;
   imageUrl: string;
@@ -54,7 +54,7 @@ export interface Activity {
 }
 
 export interface Message {
-  id: number;
+  id: string;
   senderId: string;
   text: string;
   timestamp: string;

@@ -7,10 +7,10 @@ interface EventDetailScreenProps {
   allUsers: User[];
   currentUser: User;
   onBack: () => void;
-  onJoin: (eventId: number) => void;
-  onLeave: (eventId: number) => void;
-  onDelete?: (eventId: number) => void;
-  onGoToChat?: (eventId: number) => void;
+  onJoin: (eventId: string) => void;
+  onLeave: (eventId: string) => void;
+  onDelete?: (eventId: string) => void;
+  onGoToChat?: (eventId: string) => void;
   onSelectUser?: (userId: string) => void;
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Event, User, Message } from './types';
-import { MOCK_EVENTS, MOCK_USERS, MOCK_EVENT_MESSAGES } from './constants';
+import { MOCK_USERS } from './constants';
 import HomeScreen from './components/screens/HomeScreen';
 import EventDetailScreen from './components/screens/EventDetailScreen';
 import CreateEventScreen from './components/screens/CreateEventScreen';
@@ -15,6 +15,7 @@ import LoginScreen from './components/screens/LoginScreen';
 import OpenScreen from './components/screens/OpenScreen';
 import ProfileSetupScreen from './components/screens/ProfileSetupScreen';
 import { supabase } from './lib/supabase';
+import { fetchEvents, createEvent, joinEvent, leaveEvent, deleteEvent, fetchMessages, sendMessage } from './lib/api';
 
 type View = 'home' | 'create' | 'profile' | 'eventDetail' | 'bookings' | 'activities' | 'chat' | 'chatDetail';
 type AppState = 'loading' | 'open' | 'login' | 'profile-setup' | 'main';
@@ -22,19 +23,27 @@ type AppState = 'loading' | 'open' | 'login' | 'profile-setup' | 'main';
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('loading');
   const [currentView, setCurrentView] = useState<View>('home');
-  const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>(MOCK_USERS);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
-  const [selectedChatEventId, setSelectedChatEventId] = useState<number | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedChatEventId, setSelectedChatEventId] = useState<string | null>(null);
   const [viewBeforeDetail, setViewBeforeDetail] = useState<View>('home');
-  const [eventMessages, setEventMessages] = useState<Record<number, Message[]>>(MOCK_EVENT_MESSAGES);
+  const [eventMessages, setEventMessages] = useState<Record<string, Message[]>>({});
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
-  const [lastReadTimestamps, setLastReadTimestamps] = useState<Record<number, string>>({});
+  const [lastReadTimestamps, setLastReadTimestamps] = useState<Record<string, string>>({});
 
-  const applyProfile = useCallback((userId: string, profile: { full_name?: string; name?: string; age?: number | null; city?: string | null; bio?: string | null; interests?: string[] | null; avatar_url?: string | null }) => {
+  const loadEvents = useCallback(async () => {
+    setEventsLoading(true);
+    const data = await fetchEvents();
+    setEvents(data);
+    setEventsLoading(false);
+  }, []);
+
+  const applyProfile = useCallback((userId: string, profile: any) => {
     const displayName = profile.full_name || profile.name || '';
     const user: User = {
       id: userId,
@@ -46,20 +55,12 @@ const App: React.FC = () => {
       avatarUrl: profile.avatar_url ?? `https://i.pravatar.cc/150?u=${userId}`,
     };
     setCurrentUser(user);
-    setUsers(prev => {
-      const without = prev.filter(u => u.id !== userId);
-      return [...without, user];
-    });
+    setUsers(prev => [...prev.filter(u => u.id !== userId), user]);
     setAppState('main');
   }, []);
 
   const fetchProfile = useCallback(async (userId: string, email?: string) => {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
     const displayName = profile?.full_name || profile?.name || '';
     if (profile && displayName.trim() !== '' && profile.age) {
       applyProfile(userId, profile);
@@ -83,6 +84,8 @@ const App: React.FC = () => {
       if (event === 'SIGNED_OUT') {
         setCurrentUser(null);
         setUsers(MOCK_USERS);
+        setEvents([]);
+        setEventMessages({});
         setAppState('login');
       } else if (event === 'SIGNED_IN' && session) {
         await fetchProfile(session.user.id, session.user.email);
@@ -92,78 +95,64 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
+  // Load events once user is in main app
+  useEffect(() => {
+    if (appState === 'main') loadEvents();
+  }, [appState, loadEvents]);
+
   const handleEnter = () => setAppState('login');
-  const handleLogin = () => { /* auth state change listener handles the rest */ };
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
+  const handleLogin = () => {};
+  const handleLogout = async () => { await supabase.auth.signOut(); };
 
   const handleProfileComplete = (user: User) => {
     setCurrentUser(user);
-    setUsers(prev => {
-      const without = prev.filter(u => u.id !== user.id);
-      return [...without, user];
-    });
+    setUsers(prev => [...prev.filter(u => u.id !== user.id), user]);
     setPendingUserId(null);
     setPendingEmail(null);
     setAppState('main');
   };
 
-  const handleCreateEvent = useCallback((newEventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => {
+  const handleCreateEvent = useCallback(async (newEventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => {
     if (!currentUser) return;
-    const newEvent: Event = {
-      ...newEventData,
-      id: Math.max(...events.map(e => e.id)) + 1,
-      organizer: currentUser,
-      attendeeIds: [currentUser.id],
-    };
-    setEvents(prev => [newEvent, ...prev]);
+    const newEvent = await createEvent(currentUser, newEventData);
+    if (newEvent) setEvents(prev => [newEvent, ...prev]);
     setCurrentView('home');
-  }, [currentUser, events]);
-
-  const handleJoinEvent = useCallback((eventId: number) => {
-    if (!currentUser) return;
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId && !event.attendeeIds.includes(currentUser.id)
-          ? { ...event, attendeeIds: [...event.attendeeIds, currentUser.id] }
-          : event
-      )
-    );
   }, [currentUser]);
 
-  const handleLeaveEvent = useCallback((eventId: number) => {
+  const handleJoinEvent = useCallback(async (eventId: string) => {
     if (!currentUser) return;
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId
-          ? { ...event, attendeeIds: event.attendeeIds.filter(id => id !== currentUser.id) }
-          : event
-      )
-    );
+    setEvents(prev => prev.map(e =>
+      e.id === eventId && !e.attendeeIds.includes(currentUser.id)
+        ? { ...e, attendeeIds: [...e.attendeeIds, currentUser.id] }
+        : e
+    ));
+    await joinEvent(eventId, currentUser.id);
   }, [currentUser]);
 
-  const handleDeleteEvent = useCallback((eventId: number) => {
+  const handleLeaveEvent = useCallback(async (eventId: string) => {
+    if (!currentUser) return;
+    setEvents(prev => prev.map(e =>
+      e.id === eventId ? { ...e, attendeeIds: e.attendeeIds.filter(id => id !== currentUser.id) } : e
+    ));
+    await leaveEvent(eventId, currentUser.id);
+  }, [currentUser]);
+
+  const handleDeleteEvent = useCallback(async (eventId: string) => {
     setEvents(prev => prev.filter(e => e.id !== eventId));
     setCurrentView(viewBeforeDetail);
     setSelectedEventId(null);
+    await deleteEvent(eventId);
   }, [viewBeforeDetail]);
 
-  const handleSendMessage = useCallback((eventId: number, text: string) => {
+  const handleSendMessage = useCallback(async (eventId: string, text: string) => {
     if (!currentUser) return;
-    const newMessage: Message = {
-      id: Date.now(),
-      senderId: currentUser.id,
-      text,
-      timestamp: new Date().toISOString(),
-    };
-    setEventMessages(prev => ({
-      ...prev,
-      [eventId]: [...(prev[eventId] ?? []), newMessage],
-    }));
+    const msg = await sendMessage(eventId, currentUser.id, text);
+    if (msg) {
+      setEventMessages(prev => ({ ...prev, [eventId]: [...(prev[eventId] ?? []), msg] }));
+    }
   }, [currentUser]);
 
-  const navigateToEventDetail = (eventId: number) => {
+  const navigateToEventDetail = (eventId: string) => {
     setViewBeforeDetail(currentView);
     setSelectedEventId(eventId);
     setCurrentView('eventDetail');
@@ -174,10 +163,13 @@ const App: React.FC = () => {
     setSelectedEventId(null);
   };
 
-  const navigateToChatDetail = (eventId: number) => {
+  const navigateToChatDetail = async (eventId: string) => {
     setSelectedChatEventId(eventId);
     setLastReadTimestamps(prev => ({ ...prev, [eventId]: new Date().toISOString() }));
     setCurrentView('chatDetail');
+    // Fetch messages fresh every time chat is opened
+    const msgs = await fetchMessages(eventId);
+    setEventMessages(prev => ({ ...prev, [eventId]: msgs }));
   };
 
   if (appState === 'loading') {
@@ -191,15 +183,8 @@ const App: React.FC = () => {
   if (appState === 'open') return <OpenScreen onEnter={handleEnter} />;
   if (appState === 'login') return <LoginScreen onLogin={handleLogin} />;
   if (appState === 'profile-setup' && pendingUserId) {
-    return (
-      <ProfileSetupScreen
-        userId={pendingUserId}
-        emailHint={pendingEmail ?? undefined}
-        onComplete={handleProfileComplete}
-      />
-    );
+    return <ProfileSetupScreen userId={pendingUserId} emailHint={pendingEmail ?? undefined} onComplete={handleProfileComplete} />;
   }
-
   if (!currentUser) return null;
 
   const chatUnreadCount = events
@@ -269,7 +254,11 @@ const App: React.FC = () => {
   return (
     <div className="max-w-lg mx-auto bg-white min-h-screen flex flex-col font-sans">
       <main className="flex-grow">
-        {renderContent()}
+        {eventsLoading && events.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : renderContent()}
       </main>
       {currentView !== 'chatDetail' && (
         <BottomNav

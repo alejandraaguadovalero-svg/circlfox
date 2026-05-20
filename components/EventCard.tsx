@@ -5,9 +5,9 @@ import { UsersIcon } from './icons';
 interface EventCardProps {
   event: Event;
   currentUser: User;
-  onSelectEvent: (eventId: number) => void;
-  onJoin: (eventId: number) => void;
-  onLeave: (eventId: number) => void;
+  onSelectEvent: (eventId: string) => void;
+  onJoin: (eventId: string) => void;
+  onLeave: (eventId: string) => void;
 }
 
 function timeAgo(dateStr: string): string {

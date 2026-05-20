@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Event, Category, Activity, ActivityType, Message } from './types';
+import { User, Activity, ActivityType } from './types';
 
 export const CirclFoxIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,33 +33,10 @@ export const MOCK_USERS: User[] = [
   { id: 'mock-6', name: 'shadowxplorer', age: 26, city: 'Metro City', bio: 'Into urban exploration and street art.', interests: ['Urban Exploration', 'Street Art', 'Skating'], avatarUrl: 'https://i.pravatar.cc/150?u=shadowxplorer' },
 ];
 
-export const MOCK_EVENTS: Event[] = [
-  { id: 1, title: 'City Bike Tour', description: 'Join us for a scenic bike tour around the city highlights. All skill levels welcome! We\'ll finish with food nearby.', imageUrl: 'https://images.unsplash.com/photo-1559348331-57d345336c32?q=80&w=2070&auto=format&fit=crop', date: '2026-05-24T12:00:00', location: 'City Hall', lat: 37.779, lng: -122.419, organizer: MOCK_USERS[2], attendeeIds: ['mock-2', 'mock-4', 'mock-3', 'mock-5', 'mock-6'], maxParticipants: 12, category: Category.SPORTS },
-  { id: 2, title: 'Football Match', description: 'Looking for players for a friendly game on Saturday at the park field. All levels welcome!', imageUrl: 'https://images.unsplash.com/photo-1552667466-07770ae110d0?q=80&w=2070&auto=format&fit=crop', date: '2026-05-28T16:00:00', location: 'Golden Gate Park', lat: 37.769, lng: -122.486, organizer: MOCK_USERS[3], attendeeIds: ['mock-3', 'mock-4'], maxParticipants: 22, category: Category.SPORTS },
-  { id: 3, title: 'Indie Band Showcase', description: 'Discover the next big thing in local music. A few cool indie bands are playing at The Underground. Come for the music, stay for the good vibes.', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop', date: '2026-06-05T20:00:00', location: 'The Mission District', lat: 37.760, lng: -122.421, organizer: MOCK_USERS[2], attendeeIds: ['mock-3', 'mock-2'], maxParticipants: 20, category: Category.MUSIC },
-  { id: 4, title: 'Sunset Drinks at Dolores', description: 'Casual drinks in the park as the sun goes down. Bring your own drinks and good vibes. Everyone welcome!', imageUrl: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=2070&auto=format&fit=crop', date: '2026-05-15T18:30:00', location: 'Dolores Park', lat: 37.759, lng: -122.426, organizer: MOCK_USERS[1], attendeeIds: ['mock-2', 'mock-5'], maxParticipants: 15, category: Category.DRINKS },
-];
-
-export const MOCK_EVENT_MESSAGES: Record<number, Message[]> = {
-  1: [
-    { id: 1, senderId: 'mock-3', text: "Hey everyone! So excited for the bike tour 🚴", timestamp: "2026-05-20T09:00:00" },
-    { id: 2, senderId: 'mock-4', text: "Same! Should we bring water bottles?", timestamp: "2026-05-20T09:08:00" },
-    { id: 3, senderId: 'mock-2', text: "Yes, and wear comfortable shoes. Route is ~12km", timestamp: "2026-05-20T09:15:00" },
-    { id: 4, senderId: 'mock-5', text: "I'll be there! What time should we meet at the start?", timestamp: "2026-05-20T10:30:00" },
-    { id: 5, senderId: 'mock-3', text: "Let's meet 10 min early at the main entrance 📍", timestamp: "2026-05-20T10:45:00" },
-    { id: 6, senderId: 'mock-6', text: "Can't wait! I'll bring some snacks for the group 🍌", timestamp: "2026-05-20T11:00:00" },
-  ],
-  2: [
-    { id: 1, senderId: 'mock-4', text: "Still looking for players! Tell your friends 🙌", timestamp: "2026-05-19T08:00:00" },
-    { id: 2, senderId: 'mock-3', text: "I'm in! Confirming my spot now", timestamp: "2026-05-19T08:30:00" },
-    { id: 3, senderId: 'mock-4', text: "Perfect, we need 8 more. Spread the word!", timestamp: "2026-05-19T08:35:00" },
-  ],
-};
-
 export const MOCK_ACTIVITIES: Activity[] = [
     { id: 1, type: ActivityType.FOLLOW, user: MOCK_USERS[2], timestamp: "3d", details: "started following you"},
     { id: 2, type: ActivityType.IMAGE_SHARE, user: MOCK_USERS[3], timestamp: "1d", details: "liked the image you shared to Coffee 25/02/25", relatedImageUrl: 'https://images.unsplash.com/photo-1511920183276-5742f4b5b5ba?q=80&w=1974&auto=format&fit=crop'},
-    { id: 3, type: ActivityType.NEW_EVENT, user: MOCK_USERS[1], timestamp: "2d", details: "New Event", relatedEvent: MOCK_EVENTS[1] },
+    { id: 3, type: ActivityType.NEW_EVENT, user: MOCK_USERS[1], timestamp: "2d", details: "New Event" },
     { id: 4, type: ActivityType.SAVE, user: MOCK_USERS[4], timestamp: "3d", details: "saves the image you shared to Coffee 25/02/25", relatedImageUrl: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=1974&auto=format&fit=crop' },
     { id: 5, type: ActivityType.REPLY, user: MOCK_USERS[4], timestamp: "4d", details: "Replied to the image: Should we meet again tmr?", relatedImageUrl: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=1974&auto=format&fit=crop' },
     { id: 6, type: ActivityType.LIKE, user: MOCK_USERS[3], timestamp: "5d", details: "Replied to the image: This is so adorable!!!", relatedImageUrl: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1974&auto=format&fit=crop' },
