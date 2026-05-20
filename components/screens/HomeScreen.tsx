@@ -7,13 +7,14 @@ interface HomeScreenProps {
   currentUser: User;
   onSelectEvent: (eventId: number) => void;
   onNavigateToCreate: () => void;
+  onNavigateToMap: () => void;
   onJoin: (eventId: number) => void;
   onLeave: (eventId: number) => void;
 }
 
 type Tab = 'following' | 'foryou';
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEvent, onNavigateToCreate, onJoin, onLeave }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEvent, onNavigateToCreate, onNavigateToMap, onJoin, onLeave }) => {
   const [activeTab, setActiveTab] = useState<Tab>('foryou');
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -101,9 +102,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
       </header>
 
       <div className="p-4">
-        <button onClick={onNavigateToCreate} className="w-full bg-primary text-white font-semibold py-3 rounded-lg mb-4">
-          Create Event
-        </button>
+        <div className="flex gap-2 mb-4">
+          <button onClick={onNavigateToCreate} className="flex-1 bg-primary text-white font-semibold py-3 rounded-lg">
+            Create Event
+          </button>
+          <button onClick={onNavigateToMap} className="bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-lg flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503-10.498h-7a2.25 2.25 0 00-2.25 2.25v10.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-10.5a2.25 2.25 0 00-2.25-2.25z" />
+            </svg>
+            Map
+          </button>
+        </div>
         {visibleEvents.length > 0 ? (
           <div className="space-y-4">
             {visibleEvents.map(event => (

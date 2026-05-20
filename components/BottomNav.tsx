@@ -1,16 +1,16 @@
 import React from 'react';
-import { HomeIcon, PlusCircleIcon, UserCircleIcon, MapIcon, ChatIcon } from './icons';
+import { HomeIcon, PlusCircleIcon, UserCircleIcon, BellIcon, ChatIcon } from './icons';
 
 interface BottomNavProps {
   currentView: string;
-  setCurrentView: (view: 'home' | 'bookings' | 'create' | 'chat' | 'profile') => void;
-  badges?: Partial<Record<'home' | 'bookings' | 'create' | 'chat' | 'profile', number>>;
+  setCurrentView: (view: 'home' | 'activities' | 'create' | 'chat' | 'profile') => void;
+  badges?: Partial<Record<'home' | 'activities' | 'create' | 'chat' | 'profile', number>>;
 }
 
 const BottomNav: React.FC<BottomNavProps> = ({ currentView, setCurrentView, badges = {} }) => {
   const navItems = [
     { view: 'home', icon: HomeIcon, label: 'Home' },
-    { view: 'bookings', icon: MapIcon, label: 'Explore' },
+    { view: 'activities', icon: BellIcon, label: 'Activity' },
     { view: 'create', icon: PlusCircleIcon, label: 'Create' },
     { view: 'chat', icon: ChatIcon, label: 'Messages' },
     { view: 'profile', icon: UserCircleIcon, label: 'Profile' },
