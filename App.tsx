@@ -72,12 +72,18 @@ const App: React.FC = () => {
   }, [applyProfile]);
 
   useEffect(() => {
+    const timeout = setTimeout(() => setAppState('open'), 5000);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
+      clearTimeout(timeout);
       if (session?.user) {
         fetchProfile(session.user.id, session.user.email);
       } else {
         setAppState('open');
       }
+    }).catch(() => {
+      clearTimeout(timeout);
+      setAppState('open');
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
