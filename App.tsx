@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Event, User, Message } from './types';
-import { MOCK_EVENTS, MOCK_USERS, CURRENT_USER_ID, MOCK_EVENT_MESSAGES } from './constants';
+import { MOCK_EVENTS, MOCK_USERS, MOCK_EVENT_MESSAGES } from './constants';
 import HomeScreen from './components/screens/HomeScreen';
 import EventDetailScreen from './components/screens/EventDetailScreen';
 import CreateEventScreen from './components/screens/CreateEventScreen';
@@ -13,29 +13,104 @@ import UserProfileModal from './components/UserProfileModal';
 import BottomNav from './components/BottomNav';
 import LoginScreen from './components/screens/LoginScreen';
 import OpenScreen from './components/screens/OpenScreen';
+import ProfileSetupScreen from './components/screens/ProfileSetupScreen';
+import { supabase } from './lib/supabase';
 
 type View = 'home' | 'create' | 'profile' | 'eventDetail' | 'bookings' | 'activities' | 'chat' | 'chatDetail';
-type AppState = 'open' | 'login' | 'main';
+type AppState = 'loading' | 'open' | 'login' | 'profile-setup' | 'main';
 
 const App: React.FC = () => {
-  const [appState, setAppState] = useState<AppState>('open');
+  const [appState, setAppState] = useState<AppState>('loading');
   const [currentView, setCurrentView] = useState<View>('home');
   const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
-  const [users] = useState<User[]>(MOCK_USERS);
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [selectedChatEventId, setSelectedChatEventId] = useState<number | null>(null);
   const [viewBeforeDetail, setViewBeforeDetail] = useState<View>('home');
   const [eventMessages, setEventMessages] = useState<Record<number, Message[]>>(MOCK_EVENT_MESSAGES);
-  const [selectedProfileUserId, setSelectedProfileUserId] = useState<number | null>(null);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [lastReadTimestamps, setLastReadTimestamps] = useState<Record<number, string>>({});
 
-  const currentUser = users.find(u => u.id === CURRENT_USER_ID)!;
+  const applyProfile = useCallback((userId: string, profile: { full_name?: string; name?: string; age?: number | null; city?: string | null; bio?: string | null; interests?: string[] | null; avatar_url?: string | null }) => {
+    const displayName = profile.full_name || profile.name || '';
+    const user: User = {
+      id: userId,
+      name: displayName,
+      age: profile.age ?? 0,
+      city: profile.city ?? '',
+      bio: profile.bio ?? '',
+      interests: profile.interests ?? [],
+      avatarUrl: profile.avatar_url ?? `https://i.pravatar.cc/150?u=${userId}`,
+    };
+    setCurrentUser(user);
+    setUsers(prev => {
+      const without = prev.filter(u => u.id !== userId);
+      return [...without, user];
+    });
+    setAppState('main');
+  }, []);
+
+  const fetchProfile = useCallback(async (userId: string, email?: string) => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    const displayName = profile?.full_name || profile?.name || '';
+    if (profile && displayName.trim() !== '' && profile.age) {
+      applyProfile(userId, profile);
+    } else {
+      setPendingUserId(userId);
+      setPendingEmail(email ?? null);
+      setAppState('profile-setup');
+    }
+  }, [applyProfile]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchProfile(session.user.id, session.user.email);
+      } else {
+        setAppState('open');
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setCurrentUser(null);
+        setUsers(MOCK_USERS);
+        setAppState('login');
+      } else if (event === 'SIGNED_IN') {
+        await fetchProfile(session.user.id, session.user.email);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchProfile]);
 
   const handleEnter = () => setAppState('login');
-  const handleLogin = () => setAppState('main');
-  const handleLogout = () => setAppState('login');
+  const handleLogin = () => { /* auth state change listener handles the rest */ };
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const handleProfileComplete = (user: User) => {
+    setCurrentUser(user);
+    setUsers(prev => {
+      const without = prev.filter(u => u.id !== user.id);
+      return [...without, user];
+    });
+    setPendingUserId(null);
+    setPendingEmail(null);
+    setAppState('main');
+  };
 
   const handleCreateEvent = useCallback((newEventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => {
+    if (!currentUser) return;
     const newEvent: Event = {
       ...newEventData,
       id: Math.max(...events.map(e => e.id)) + 1,
@@ -47,6 +122,7 @@ const App: React.FC = () => {
   }, [currentUser, events]);
 
   const handleJoinEvent = useCallback((eventId: number) => {
+    if (!currentUser) return;
     setEvents(prev =>
       prev.map(event =>
         event.id === eventId && !event.attendeeIds.includes(currentUser.id)
@@ -54,9 +130,10 @@ const App: React.FC = () => {
           : event
       )
     );
-  }, [currentUser.id]);
+  }, [currentUser]);
 
   const handleLeaveEvent = useCallback((eventId: number) => {
+    if (!currentUser) return;
     setEvents(prev =>
       prev.map(event =>
         event.id === eventId
@@ -64,7 +141,7 @@ const App: React.FC = () => {
           : event
       )
     );
-  }, [currentUser.id]);
+  }, [currentUser]);
 
   const handleDeleteEvent = useCallback((eventId: number) => {
     setEvents(prev => prev.filter(e => e.id !== eventId));
@@ -73,6 +150,7 @@ const App: React.FC = () => {
   }, [viewBeforeDetail]);
 
   const handleSendMessage = useCallback((eventId: number, text: string) => {
+    if (!currentUser) return;
     const newMessage: Message = {
       id: Date.now(),
       senderId: currentUser.id,
@@ -83,7 +161,7 @@ const App: React.FC = () => {
       ...prev,
       [eventId]: [...(prev[eventId] ?? []), newMessage],
     }));
-  }, [currentUser.id]);
+  }, [currentUser]);
 
   const navigateToEventDetail = (eventId: number) => {
     setViewBeforeDetail(currentView);
@@ -101,6 +179,28 @@ const App: React.FC = () => {
     setLastReadTimestamps(prev => ({ ...prev, [eventId]: new Date().toISOString() }));
     setCurrentView('chatDetail');
   };
+
+  if (appState === 'loading') {
+    return (
+      <div className="max-w-lg mx-auto min-h-screen bg-primary flex items-center justify-center">
+        <img src="/logo.png" alt="Circl" className="w-32 h-32 object-contain animate-pulse" />
+      </div>
+    );
+  }
+
+  if (appState === 'open') return <OpenScreen onEnter={handleEnter} />;
+  if (appState === 'login') return <LoginScreen onLogin={handleLogin} />;
+  if (appState === 'profile-setup' && pendingUserId) {
+    return (
+      <ProfileSetupScreen
+        userId={pendingUserId}
+        emailHint={pendingEmail ?? undefined}
+        onComplete={handleProfileComplete}
+      />
+    );
+  }
+
+  if (!currentUser) return null;
 
   const chatUnreadCount = events
     .filter(e => e.attendeeIds.includes(currentUser.id))
@@ -163,9 +263,6 @@ const App: React.FC = () => {
         return <HomeScreen events={events} currentUser={currentUser} onSelectEvent={navigateToEventDetail} onNavigateToCreate={() => setCurrentView('create')} onNavigateToMap={() => setCurrentView('bookings')} onJoin={handleJoinEvent} onLeave={handleLeaveEvent} />;
     }
   };
-
-  if (appState === 'open') return <OpenScreen onEnter={handleEnter} />;
-  if (appState === 'login') return <LoginScreen onLogin={handleLogin} />;
 
   const selectedProfileUser = selectedProfileUserId ? users.find(u => u.id === selectedProfileUserId) : null;
 

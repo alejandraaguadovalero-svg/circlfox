@@ -11,7 +11,7 @@ interface EventDetailScreenProps {
   onLeave: (eventId: number) => void;
   onDelete?: (eventId: number) => void;
   onGoToChat?: (eventId: number) => void;
-  onSelectUser?: (userId: number) => void;
+  onSelectUser?: (userId: string) => void;
 }
 
 const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onDelete, onGoToChat, onSelectUser }) => {

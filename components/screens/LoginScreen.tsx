@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../../lib/supabase';
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -22,16 +23,58 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [step, setStep] = useState<'email' | 'password'>('email');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (step === 'email') {
       if (!email || !email.includes('@')) { setEmailError('Please enter a valid email.'); return; }
       setEmailError('');
       setStep('password');
-    } else {
-      if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); return; }
-      setPasswordError('');
+      return;
+    }
+
+    if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); return; }
+    setPasswordError('');
+    setLoading(true);
+
+    // Try sign in first
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (!signInError) {
       onLogin();
+      return;
+    }
+
+    const isInvalidCreds = signInError.message.toLowerCase().includes('invalid') || signInError.message.toLowerCase().includes('credentials');
+
+    if (isInvalidCreds) {
+      // Try creating a new account — if this also fails, the email exists with a different password
+      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      if (!signUpError) {
+        onLogin();
+        return;
+      }
+      // Email already registered but password is wrong
+      if (signUpError.message.toLowerCase().includes('already registered') || signUpError.message.toLowerCase().includes('already exists')) {
+        setPasswordError('Incorrect password. Please try again.');
+      } else {
+        setPasswordError(signUpError.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    setPasswordError(signInError.message);
+    setLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) {
+      setEmailError('Google sign-in is not set up yet. Use email and password below.');
     }
   };
 
@@ -39,7 +82,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     <div className="min-h-screen bg-white flex flex-col p-6 font-sans">
       <header className="flex-shrink-0 py-4">
         {step === 'password' && (
-          <button onClick={() => setStep('email')} className="text-gray-500">
+          <button onClick={() => { setStep('email'); setPasswordError(''); }} className="text-gray-500">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -49,15 +92,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
       <main className="flex-grow flex flex-col justify-center">
         <div className="text-center">
-          <img src="/logo.png" alt="Circl" className="w-72 h-72 mx-auto object-contain" />
+          <img src="/logo.png" alt="Circl" className="mx-auto object-contain drop-shadow-sm" style={{ width: '85vw', maxWidth: '320px' }} />
         </div>
 
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-800">
-            {step === 'email' ? 'Create an account' : 'Enter your password'}
+            {step === 'email' ? 'Sign in or create account' : 'Enter your password'}
           </h2>
           <p className="text-gray-500 mt-1">
-            {step === 'email' ? 'Enter your email to sign up for this app' : email}
+            {step === 'email' ? 'Enter your email to continue' : email}
           </p>
 
           {step === 'email' ? (
@@ -80,7 +123,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   value={password}
                   onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
                   onKeyDown={e => e.key === 'Enter' && handleContinue()}
-                  placeholder="Password"
+                  placeholder="Password (min 6 characters)"
                   autoFocus
                   className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${passwordError ? 'border-red-400' : 'border-gray-300'}`}
                 />
@@ -98,9 +141,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           <button
             onClick={handleContinue}
-            className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg mt-4 transition-opacity hover:opacity-90"
+            disabled={loading}
+            className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg mt-4 transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            Continue
+            {loading ? 'Please wait…' : 'Continue'}
           </button>
         </div>
 
@@ -113,11 +157,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             </div>
 
             <div className="space-y-3">
-              <button onClick={onLogin} className="w-full bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors hover:bg-gray-50 flex items-center justify-center gap-2">
+              <button onClick={handleGoogleLogin} className="w-full bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors hover:bg-gray-50 flex items-center justify-center gap-2">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
                 Continue with Google
               </button>
-              <button onClick={onLogin} className="w-full bg-black text-white font-semibold py-3 px-4 rounded-lg transition-opacity hover:opacity-90 flex items-center justify-center gap-2">
+              <button onClick={handleContinue} className="w-full bg-black text-white font-semibold py-3 px-4 rounded-lg transition-opacity hover:opacity-90 flex items-center justify-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 814 1000">
                   <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.3-167.8-107.8c-72.3-80-133-207.5-133-330.5 0-194.8 127.4-298.1 253.4-298.1 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z" />
                 </svg>

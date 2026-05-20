@@ -24,38 +24,35 @@ export const CirclFoxIcon: React.FC<{ className?: string }> = ({ className }) =>
   </svg>
 );
 
-
 export const MOCK_USERS: User[] = [
-  { id: 1, name: 'Alex', age: 22, city: 'Metro City', bio: 'Student at Metro U, love hiking and trying new food spots!', interests: ['Running', 'Football', 'Coffee', 'Clubbing'], avatarUrl: 'https://i.pravatar.cc/150?u=alex' },
-  { id: 2, name: 'Mia', age: 25, city: 'Metro City', bio: 'Young professional in tech. Always down for a board game night or a concert.', interests: ['Board Games', 'Live Music', 'Coding'], avatarUrl: 'https://i.pravatar.cc/150?u=mia' },
-  { id: 3, name: 'starryxkes23', age: 19, city: 'Metro City', bio: 'Digital nomad passing through. Let\'s grab a coffee and talk about travel.', interests: ['Travel', 'Coffee', 'Startups'], avatarUrl: 'https://i.pravatar.cc/150?u=starryxkes23' },
-  { id: 4, name: 'netuibonomad', age: 24, city: 'Metro City', bio: 'Art student who loves museum trips and outdoor painting.', interests: ['Art', 'Museums', 'Nature'], avatarUrl: 'https://i.pravatar.cc/150?u=netuibonomad' },
-  { id: 5, name: 'lunavoyager', age: 21, city: 'Metro City', bio: 'Loves photography and exploring hidden gems in the city.', interests: ['Photography', 'Exploring', 'History'], avatarUrl: 'https://i.pravatar.cc/150?u=lunavoyager' },
-  { id: 6, name: 'shadowxplorer', age: 26, city: 'Metro City', bio: 'Into urban exploration and street art.', interests: ['Urban Exploration', 'Street Art', 'Skating'], avatarUrl: 'https://i.pravatar.cc/150?u=shadowxplorer' },
+  { id: 'mock-1', name: 'Alex', age: 22, city: 'Metro City', bio: 'Student at Metro U, love hiking and trying new food spots!', interests: ['Running', 'Football', 'Coffee', 'Clubbing'], avatarUrl: 'https://i.pravatar.cc/150?u=alex' },
+  { id: 'mock-2', name: 'Mia', age: 25, city: 'Metro City', bio: 'Young professional in tech. Always down for a board game night or a concert.', interests: ['Board Games', 'Live Music', 'Coding'], avatarUrl: 'https://i.pravatar.cc/150?u=mia' },
+  { id: 'mock-3', name: 'starryxkes23', age: 19, city: 'Metro City', bio: 'Digital nomad passing through. Let\'s grab a coffee and talk about travel.', interests: ['Travel', 'Coffee', 'Startups'], avatarUrl: 'https://i.pravatar.cc/150?u=starryxkes23' },
+  { id: 'mock-4', name: 'netuibonomad', age: 24, city: 'Metro City', bio: 'Art student who loves museum trips and outdoor painting.', interests: ['Art', 'Museums', 'Nature'], avatarUrl: 'https://i.pravatar.cc/150?u=netuibonomad' },
+  { id: 'mock-5', name: 'lunavoyager', age: 21, city: 'Metro City', bio: 'Loves photography and exploring hidden gems in the city.', interests: ['Photography', 'Exploring', 'History'], avatarUrl: 'https://i.pravatar.cc/150?u=lunavoyager' },
+  { id: 'mock-6', name: 'shadowxplorer', age: 26, city: 'Metro City', bio: 'Into urban exploration and street art.', interests: ['Urban Exploration', 'Street Art', 'Skating'], avatarUrl: 'https://i.pravatar.cc/150?u=shadowxplorer' },
 ];
 
-export const CURRENT_USER_ID = 1;
-
 export const MOCK_EVENTS: Event[] = [
-  { id: 1, title: 'City Bike Tour', description: 'Join us for a scenic bike tour around the city highlights. All skill levels welcome! We\'ll finish with food nearby.', imageUrl: 'https://images.unsplash.com/photo-1559348331-57d345336c32?q=80&w=2070&auto=format&fit=crop', date: '2026-05-24T12:00:00', location: 'City Hall', lat: 37.779, lng: -122.419, organizer: MOCK_USERS[2], attendeeIds: [2, 4, 3, 5, 6, 1], maxParticipants: 12, category: Category.SPORTS },
-  { id: 2, title: 'Football Match', description: 'Looking for players for a friendly game on Saturday at the park field. All levels welcome!', imageUrl: 'https://images.unsplash.com/photo-1552667466-07770ae110d0?q=80&w=2070&auto=format&fit=crop', date: '2026-05-28T16:00:00', location: 'Golden Gate Park', lat: 37.769, lng: -122.486, organizer: MOCK_USERS[3], attendeeIds: [3, 4], maxParticipants: 22, category: Category.SPORTS },
-  { id: 3, title: 'Indie Band Showcase', description: 'Discover the next big thing in local music. A few cool indie bands are playing at The Underground. Come for the music, stay for the good vibes.', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop', date: '2026-06-05T20:00:00', location: 'The Mission District', lat: 37.760, lng: -122.421, organizer: MOCK_USERS[2], attendeeIds: [3, 2], maxParticipants: 20, category: Category.MUSIC },
-  { id: 4, title: 'Sunset Drinks at Dolores', description: 'Casual drinks in the park as the sun goes down. Bring your own drinks and good vibes. Everyone welcome!', imageUrl: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=2070&auto=format&fit=crop', date: '2026-05-15T18:30:00', location: 'Dolores Park', lat: 37.759, lng: -122.426, organizer: MOCK_USERS[1], attendeeIds: [2, 5, 1], maxParticipants: 15, category: Category.DRINKS },
+  { id: 1, title: 'City Bike Tour', description: 'Join us for a scenic bike tour around the city highlights. All skill levels welcome! We\'ll finish with food nearby.', imageUrl: 'https://images.unsplash.com/photo-1559348331-57d345336c32?q=80&w=2070&auto=format&fit=crop', date: '2026-05-24T12:00:00', location: 'City Hall', lat: 37.779, lng: -122.419, organizer: MOCK_USERS[2], attendeeIds: ['mock-2', 'mock-4', 'mock-3', 'mock-5', 'mock-6'], maxParticipants: 12, category: Category.SPORTS },
+  { id: 2, title: 'Football Match', description: 'Looking for players for a friendly game on Saturday at the park field. All levels welcome!', imageUrl: 'https://images.unsplash.com/photo-1552667466-07770ae110d0?q=80&w=2070&auto=format&fit=crop', date: '2026-05-28T16:00:00', location: 'Golden Gate Park', lat: 37.769, lng: -122.486, organizer: MOCK_USERS[3], attendeeIds: ['mock-3', 'mock-4'], maxParticipants: 22, category: Category.SPORTS },
+  { id: 3, title: 'Indie Band Showcase', description: 'Discover the next big thing in local music. A few cool indie bands are playing at The Underground. Come for the music, stay for the good vibes.', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop', date: '2026-06-05T20:00:00', location: 'The Mission District', lat: 37.760, lng: -122.421, organizer: MOCK_USERS[2], attendeeIds: ['mock-3', 'mock-2'], maxParticipants: 20, category: Category.MUSIC },
+  { id: 4, title: 'Sunset Drinks at Dolores', description: 'Casual drinks in the park as the sun goes down. Bring your own drinks and good vibes. Everyone welcome!', imageUrl: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=2070&auto=format&fit=crop', date: '2026-05-15T18:30:00', location: 'Dolores Park', lat: 37.759, lng: -122.426, organizer: MOCK_USERS[1], attendeeIds: ['mock-2', 'mock-5'], maxParticipants: 15, category: Category.DRINKS },
 ];
 
 export const MOCK_EVENT_MESSAGES: Record<number, Message[]> = {
   1: [
-    { id: 1, senderId: 3, text: "Hey everyone! So excited for the bike tour 🚴", timestamp: "2026-05-20T09:00:00" },
-    { id: 2, senderId: 4, text: "Same! Should we bring water bottles?", timestamp: "2026-05-20T09:08:00" },
-    { id: 3, senderId: 2, text: "Yes, and wear comfortable shoes. Route is ~12km", timestamp: "2026-05-20T09:15:00" },
-    { id: 4, senderId: 5, text: "I'll be there! What time should we meet at the start?", timestamp: "2026-05-20T10:30:00" },
-    { id: 5, senderId: 3, text: "Let's meet 10 min early at the main entrance 📍", timestamp: "2026-05-20T10:45:00" },
-    { id: 6, senderId: 6, text: "Can't wait! I'll bring some snacks for the group 🍌", timestamp: "2026-05-20T11:00:00" },
+    { id: 1, senderId: 'mock-3', text: "Hey everyone! So excited for the bike tour 🚴", timestamp: "2026-05-20T09:00:00" },
+    { id: 2, senderId: 'mock-4', text: "Same! Should we bring water bottles?", timestamp: "2026-05-20T09:08:00" },
+    { id: 3, senderId: 'mock-2', text: "Yes, and wear comfortable shoes. Route is ~12km", timestamp: "2026-05-20T09:15:00" },
+    { id: 4, senderId: 'mock-5', text: "I'll be there! What time should we meet at the start?", timestamp: "2026-05-20T10:30:00" },
+    { id: 5, senderId: 'mock-3', text: "Let's meet 10 min early at the main entrance 📍", timestamp: "2026-05-20T10:45:00" },
+    { id: 6, senderId: 'mock-6', text: "Can't wait! I'll bring some snacks for the group 🍌", timestamp: "2026-05-20T11:00:00" },
   ],
   2: [
-    { id: 1, senderId: 4, text: "Still looking for players! Tell your friends 🙌", timestamp: "2026-05-19T08:00:00" },
-    { id: 2, senderId: 3, text: "I'm in! Confirming my spot now", timestamp: "2026-05-19T08:30:00" },
-    { id: 3, senderId: 4, text: "Perfect, we need 8 more. Spread the word!", timestamp: "2026-05-19T08:35:00" },
+    { id: 1, senderId: 'mock-4', text: "Still looking for players! Tell your friends 🙌", timestamp: "2026-05-19T08:00:00" },
+    { id: 2, senderId: 'mock-3', text: "I'm in! Confirming my spot now", timestamp: "2026-05-19T08:30:00" },
+    { id: 3, senderId: 'mock-4', text: "Perfect, we need 8 more. Spread the word!", timestamp: "2026-05-19T08:35:00" },
   ],
 };
 

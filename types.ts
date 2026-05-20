@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  id: string;
   name: string;
   age: number;
   city: string;
@@ -18,7 +18,7 @@ export interface Event {
   lat: number;
   lng: number;
   organizer: User;
-  attendeeIds: number[];
+  attendeeIds: string[];
   maxParticipants: number;
   category: Category;
 }
@@ -55,7 +55,7 @@ export interface Activity {
 
 export interface Message {
   id: number;
-  senderId: number;
+  senderId: string;
   text: string;
   timestamp: string;
 }
