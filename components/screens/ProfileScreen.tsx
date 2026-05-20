@@ -109,7 +109,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
     <div className="bg-cream min-h-screen pb-24">
       {/* Gradient banner + gear */}
       <div className="relative">
-        <div className="h-36 w-full" style={{ background: 'linear-gradient(135deg, #7B4FFF 0%, #a855f7 50%, #FF6B35 100%)' }} />
+        <div className="h-36 w-full bg-primary" />
         <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 w-9 h-9 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
           <GearIcon className="h-5 w-5 text-white" />
         </button>
@@ -144,8 +144,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-6 text-center">
-          <StatCard label="Circls Started" value={createdEvents.length.toString()} gradient="linear-gradient(135deg, #7B4FFF15, #a855f715)" color="#7B4FFF" />
-          <StatCard label="Plans Attended" value={attendedEvents.length.toString()} gradient="linear-gradient(135deg, #FF6B3515, #f9731615)" color="#FF6B35" />
+          <StatCard label="Circls Started" value={createdEvents.length.toString()} bg="bg-primary/10" color="text-primary" />
+          <StatCard label="Plans Attended" value={attendedEvents.length.toString()} bg="bg-accent/10" color="text-accent" />
         </div>
 
         <div className="mt-5">
@@ -277,9 +277,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
   );
 };
 
-const StatCard: React.FC<{ label: string; value: string; gradient: string; color: string }> = ({ label, value, gradient, color }) => (
-  <div className="p-4 rounded-2xl" style={{ background: gradient }}>
-    <p className="text-3xl font-black" style={{ color }}>{value}</p>
+const StatCard: React.FC<{ label: string; value: string; bg: string; color: string }> = ({ label, value, bg, color }) => (
+  <div className={`p-4 rounded-2xl ${bg}`}>
+    <p className={`text-3xl font-black ${color}`}>{value}</p>
     <p className="text-xs font-semibold text-gray-500 mt-1">{label}</p>
   </div>
 );

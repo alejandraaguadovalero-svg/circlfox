@@ -50,10 +50,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       return;
     }
 
-    if (!signInError) {
-      onLogin();
-      return;
-    }
+    if (!signInError) { onLogin(); return; }
 
     const isInvalidCreds = signInError.message.toLowerCase().includes('invalid') || signInError.message.toLowerCase().includes('credentials');
 
@@ -66,10 +63,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         setPasswordError(e.message); setLoading(false); return;
       }
       if (!signUpError && signUpData?.user) {
-        await supabase.from('profiles').upsert({
-          id: signUpData.user.id,
-          full_name: email.split('@')[0],
-        }, { onConflict: 'id' });
+        await supabase.from('profiles').upsert({ id: signUpData.user.id, full_name: email.split('@')[0] }, { onConflict: 'id' });
         onLogin();
         return;
       }
@@ -87,85 +81,79 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans" style={{ background: '#FFFBF5' }}>
-      {/* Top accent strip */}
-      <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg, #7B4FFF, #a855f7, #FF6B35)' }} />
+    <div className="min-h-screen flex flex-col font-sans bg-cream">
 
-      <header className="px-6 pt-4 pb-2 flex-shrink-0">
-        {step === 'password' && (
-          <button onClick={() => { setStep('email'); setPasswordError(''); }} className="text-gray-500 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <header className="px-6 pt-12 pb-2 flex-shrink-0 flex items-center">
+        {step === 'password' ? (
+          <button onClick={() => { setStep('email'); setPasswordError(''); }}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm border border-black/5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-        )}
+        ) : <div className="w-9" />}
       </header>
 
-      <main className="flex-grow flex flex-col justify-center px-6">
-        <div className="text-center mb-8">
-          <img src="/logo.png" alt="Circl" className="mx-auto object-contain drop-shadow-sm" style={{ width: '70vw', maxWidth: '280px' }} />
+      <main className="flex-grow flex flex-col justify-center px-6 -mt-8">
+        <div className="mb-8 text-center">
+          <img src="/logo.png" alt="Circl" className="mx-auto object-contain" style={{ width: '60vw', maxWidth: '240px' }} />
         </div>
 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">
-            {step === 'email' ? 'Welcome back 👋' : 'Enter your password'}
-          </h2>
-          <p className="text-gray-400 text-sm mb-5">
-            {step === 'email' ? 'Find your people in Madrid.' : email}
-          </p>
+        <h2 className="text-2xl font-black text-gray-900 mb-1">
+          {step === 'email' ? 'Welcome back' : 'Enter password'}
+        </h2>
+        <p className="text-gray-400 text-sm mb-6">
+          {step === 'email' ? 'New here? We\'ll create your account automatically.' : email}
+        </p>
 
-          {step === 'email' ? (
-            <>
+        {step === 'email' ? (
+          <>
+            <input
+              type="email"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setEmailError(''); }}
+              onKeyDown={e => e.key === 'Enter' && handleContinue()}
+              placeholder="your@email.com"
+              className={`w-full px-4 py-4 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${emailError ? 'border-red-300' : 'border-transparent'}`}
+            />
+            {emailError && <p className="text-red-500 text-xs mt-2">{emailError}</p>}
+          </>
+        ) : (
+          <div>
+            <div className="relative">
               <input
-                type="email"
-                value={email}
-                onChange={e => { setEmail(e.target.value); setEmailError(''); }}
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
                 onKeyDown={e => e.key === 'Enter' && handleContinue()}
-                placeholder="your@email.com"
-                className={`w-full px-4 py-3.5 border rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-50 ${emailError ? 'border-red-400' : 'border-gray-200'}`}
+                placeholder="Password (min 6 chars)"
+                autoFocus
+                className={`w-full px-4 py-4 pr-12 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${passwordError ? 'border-red-300' : 'border-transparent'}`}
               />
-              {emailError && <p className="text-red-500 text-xs mt-1.5">{emailError}</p>}
-            </>
-          ) : (
-            <div>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
-                  onKeyDown={e => e.key === 'Enter' && handleContinue()}
-                  placeholder="Password (min 6 characters)"
-                  autoFocus
-                  className={`w-full px-4 py-3.5 pr-12 border rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-50 ${passwordError ? 'border-red-400' : 'border-gray-200'}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-                >
-                  <EyeIcon show={showPassword} />
-                </button>
-              </div>
-              {passwordError && <p className="text-red-500 text-xs mt-1.5">{passwordError}</p>}
+              <button type="button" onClick={() => setShowPassword(v => !v)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <EyeIcon show={showPassword} />
+              </button>
             </div>
-          )}
+            {passwordError && <p className="text-red-500 text-xs mt-2">{passwordError}</p>}
+          </div>
+        )}
 
-          <button
-            onClick={handleContinue}
-            disabled={loading}
-            className="w-full text-white font-bold py-3.5 px-4 rounded-2xl mt-4 transition-all active:scale-95 disabled:opacity-60 text-sm"
-            style={{ background: 'linear-gradient(135deg, #7B4FFF, #a855f7)' }}
-          >
-            {loading ? 'Please wait…' : step === 'email' ? 'Continue →' : 'Let me in →'}
-          </button>
-        </div>
+        <button
+          onClick={handleContinue}
+          disabled={loading}
+          className="w-full bg-primary text-white font-bold py-4 rounded-2xl mt-4 active:scale-95 transition-transform duration-150 disabled:opacity-50"
+        >
+          {loading ? 'Please wait…' : step === 'email' ? 'Continue' : 'Let me in'}
+        </button>
       </main>
 
-      <footer className="flex-shrink-0 text-center px-6 py-6">
+      <footer className="flex-shrink-0 text-center px-6 pb-10">
         <p className="text-xs text-gray-400">
-          By continuing, you agree to our{' '}
-          <a href="#" className="underline text-gray-500">Terms</a> and{' '}
-          <a href="#" className="underline text-gray-500">Privacy Policy</a>
+          By continuing you agree to our{' '}
+          <a href="#" className="text-gray-500 underline underline-offset-2">Terms</a>
+          {' '}and{' '}
+          <a href="#" className="text-gray-500 underline underline-offset-2">Privacy Policy</a>
         </p>
       </footer>
     </div>
