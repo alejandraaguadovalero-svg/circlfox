@@ -25,7 +25,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('home');
   const [events, setEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
@@ -103,7 +103,7 @@ const App: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         setCurrentUser(null);
-        setUsers(MOCK_USERS);
+        setUsers([]);
         setEvents([]);
         setEventMessages({});
         setAppState('login');
