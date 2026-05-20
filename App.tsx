@@ -61,22 +61,27 @@ const App: React.FC = () => {
   }, []);
 
   const fetchProfile = useCallback(async (userId: string, email?: string) => {
-    try {
-      const profilePromise = supabase.from('profiles').select('*').eq('id', userId).single();
-      const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 25000));
-      const { data: profile } = await Promise.race([profilePromise, timeoutPromise]) as any;
-      const displayName = profile?.full_name || profile?.name || '';
-      if (profile && displayName.trim() !== '' && profile.age) {
-        applyProfile(userId, profile);
-      } else {
-        setPendingUserId(userId);
-        setPendingEmail(email ?? null);
-        setAppState('profile-setup');
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const profilePromise = supabase.from('profiles').select('*').eq('id', userId).single();
+        const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000));
+        const { data: profile } = await Promise.race([profilePromise, timeoutPromise]) as any;
+        const displayName = profile?.full_name || profile?.name || '';
+        if (profile && displayName.trim() !== '' && profile.age) {
+          applyProfile(userId, profile);
+        } else {
+          setPendingUserId(userId);
+          setPendingEmail(email ?? null);
+          setAppState('profile-setup');
+        }
+        return;
+      } catch {
+        if (attempt === 2) {
+          setPendingUserId(userId);
+          setPendingEmail(email ?? null);
+          setAppState('profile-setup');
+        }
       }
-    } catch {
-      setPendingUserId(userId);
-      setPendingEmail(email ?? null);
-      setAppState('profile-setup');
     }
   }, [applyProfile]);
 
