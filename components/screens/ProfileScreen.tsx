@@ -100,7 +100,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           <h2 className="text-2xl font-bold text-gray-800 mt-4">{currentUser.name}</h2>
-          <p className="text-gray-500">{currentUser.bio}</p>
+          {currentUser.username && <p className="text-primary font-medium text-sm">@{currentUser.username}</p>}
+          <p className="text-gray-500 mt-1">{currentUser.bio}</p>
         </div>
 
         <div className="mt-6">

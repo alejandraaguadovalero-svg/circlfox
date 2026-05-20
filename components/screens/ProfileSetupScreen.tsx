@@ -11,9 +11,10 @@ interface ProfileSetupScreenProps {
 const INTEREST_OPTIONS = ['Running', 'Football', 'Coffee', 'Music', 'Art', 'Travel', 'Gaming', 'Hiking', 'Cooking', 'Clubbing', 'Board Games', 'Photography'];
 
 const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHint, onComplete }) => {
-  const [name, setName] = useState(emailHint?.split('@')[0] ?? '');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState(emailHint?.split('@')[0] ?? '');
   const [age, setAge] = useState('');
-  const [city, setCity] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,10 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
   };
 
   const handleSave = async () => {
-    if (!name.trim()) { setError('Please enter your name.'); return; }
+    if (!firstName.trim()) { setError('Please enter your name.'); return; }
+    if (!lastName.trim()) { setError('Please enter your surname.'); return; }
+    if (!username.trim()) { setError('Please enter a username.'); return; }
+    if (username.includes(' ')) { setError('Username cannot contain spaces.'); return; }
     if (!age || isNaN(Number(age)) || Number(age) < 13 || Number(age) > 120) {
       setError('Please enter a valid age.'); return;
     }
@@ -44,7 +48,9 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
     setLoading(true);
     setError('');
 
-    let avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name.trim())}&background=7B4FFF&color=fff&size=150`;
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
+    let avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=7B4FFF&color=fff&size=150`;
+
     if (avatarFile) {
       const ext = avatarFile.name.split('.').pop();
       const path = `${userId}/avatar.${ext}`;
@@ -58,7 +64,10 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
       .from('profiles')
       .upsert({
         id: userId,
-        full_name: name.trim(),
+        full_name: fullName,
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        username: username.trim().toLowerCase(),
         age: Number(age),
         city: 'Madrid',
         bio: bio.trim() || null,
@@ -67,14 +76,19 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
       });
 
     if (dbError) {
-      setError(dbError.message);
+      if (dbError.message.includes('unique') || dbError.message.includes('duplicate')) {
+        setError('That username is already taken. Please choose another.');
+      } else {
+        setError(dbError.message);
+      }
       setLoading(false);
       return;
     }
 
     onComplete({
       id: userId,
-      name: name.trim(),
+      name: fullName,
+      username: username.trim().toLowerCase(),
       age: Number(age),
       city: 'Madrid',
       bio: bio.trim(),
@@ -96,11 +110,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
         <div className="flex flex-col items-center py-2">
           <button onClick={() => fileInputRef.current?.click()} className="relative">
             {avatarPreview ? (
-              <img
-                src={avatarPreview}
-                alt="Avatar"
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
-              />
+              <img src={avatarPreview} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md" />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-100 border-4 border-white shadow-md flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -119,15 +129,41 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} />
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Name *</label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={e => { setFirstName(e.target.value); setError(''); }}
+              placeholder="e.g. María"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Surname *</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={e => { setLastName(e.target.value); setError(''); }}
+              placeholder="e.g. García"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Name *</label>
-          <input
-            type="text"
-            value={name}
-            onChange={e => { setName(e.target.value); setError(''); }}
-            placeholder="Your name or username"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Username *</label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">@</span>
+            <input
+              type="text"
+              value={username}
+              onChange={e => { setUsername(e.target.value.replace(/\s/g, '').toLowerCase()); setError(''); }}
+              placeholder="yourhandle"
+              className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
         </div>
 
         <div>
@@ -164,9 +200,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
                 key={interest}
                 onClick={() => toggleInterest(interest)}
                 className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                  interests.includes(interest)
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-600'
+                  interests.includes(interest) ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
                 }`}
               >
                 {interest}

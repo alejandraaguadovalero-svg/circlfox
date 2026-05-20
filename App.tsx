@@ -48,6 +48,7 @@ const App: React.FC = () => {
     const user: User = {
       id: userId,
       name: displayName,
+      username: profile.username ?? '',
       age: profile.age ?? 0,
       city: profile.city ?? '',
       bio: profile.bio ?? '',

@@ -25,12 +25,12 @@ export const CirclFoxIcon: React.FC<{ className?: string }> = ({ className }) =>
 );
 
 export const MOCK_USERS: User[] = [
-  { id: 'mock-1', name: 'Alex', age: 22, city: 'Metro City', bio: 'Student at Metro U, love hiking and trying new food spots!', interests: ['Running', 'Football', 'Coffee', 'Clubbing'], avatarUrl: 'https://i.pravatar.cc/150?u=alex' },
-  { id: 'mock-2', name: 'Mia', age: 25, city: 'Metro City', bio: 'Young professional in tech. Always down for a board game night or a concert.', interests: ['Board Games', 'Live Music', 'Coding'], avatarUrl: 'https://i.pravatar.cc/150?u=mia' },
-  { id: 'mock-3', name: 'starryxkes23', age: 19, city: 'Metro City', bio: 'Digital nomad passing through. Let\'s grab a coffee and talk about travel.', interests: ['Travel', 'Coffee', 'Startups'], avatarUrl: 'https://i.pravatar.cc/150?u=starryxkes23' },
-  { id: 'mock-4', name: 'netuibonomad', age: 24, city: 'Metro City', bio: 'Art student who loves museum trips and outdoor painting.', interests: ['Art', 'Museums', 'Nature'], avatarUrl: 'https://i.pravatar.cc/150?u=netuibonomad' },
-  { id: 'mock-5', name: 'lunavoyager', age: 21, city: 'Metro City', bio: 'Loves photography and exploring hidden gems in the city.', interests: ['Photography', 'Exploring', 'History'], avatarUrl: 'https://i.pravatar.cc/150?u=lunavoyager' },
-  { id: 'mock-6', name: 'shadowxplorer', age: 26, city: 'Metro City', bio: 'Into urban exploration and street art.', interests: ['Urban Exploration', 'Street Art', 'Skating'], avatarUrl: 'https://i.pravatar.cc/150?u=shadowxplorer' },
+  { id: 'mock-1', name: 'Alex López', username: 'alexlopez', age: 22, city: 'Madrid', bio: 'Student, love hiking and trying new food spots!', interests: ['Running', 'Football', 'Coffee', 'Clubbing'], avatarUrl: 'https://i.pravatar.cc/150?u=alex' },
+  { id: 'mock-2', name: 'Mia Ruiz', username: 'miaruiz', age: 25, city: 'Madrid', bio: 'Young professional in tech. Always down for a board game night.', interests: ['Board Games', 'Music', 'Hiking'], avatarUrl: 'https://i.pravatar.cc/150?u=mia' },
+  { id: 'mock-3', name: 'Sara Martín', username: 'starryxkes23', age: 19, city: 'Madrid', bio: 'Let\'s grab a coffee and talk about travel.', interests: ['Travel', 'Coffee', 'Art'], avatarUrl: 'https://i.pravatar.cc/150?u=starryxkes23' },
+  { id: 'mock-4', name: 'Carlos Vega', username: 'carlosvega', age: 24, city: 'Madrid', bio: 'Art student who loves museum trips and outdoor painting.', interests: ['Art', 'Photography', 'Outdoors'], avatarUrl: 'https://i.pravatar.cc/150?u=netuibonomad' },
+  { id: 'mock-5', name: 'Luna García', username: 'lunavoyager', age: 21, city: 'Madrid', bio: 'Loves photography and exploring hidden gems in the city.', interests: ['Photography', 'Hiking', 'Gaming'], avatarUrl: 'https://i.pravatar.cc/150?u=lunavoyager' },
+  { id: 'mock-6', name: 'Diego Sanz', username: 'diegosanz', age: 26, city: 'Madrid', bio: 'Into urban exploration and street art.', interests: ['Art', 'Music', 'Running'], avatarUrl: 'https://i.pravatar.cc/150?u=shadowxplorer' },
 ];
 
 export const MOCK_ACTIVITIES: Activity[] = [
