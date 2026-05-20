@@ -41,12 +41,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
     eventNotifications: true,
     messageNotifications: true,
     activityNotifications: false,
-    privateProfile: false,
     showLocation: true,
   });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const toggle = (key: keyof typeof settings) =>
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const handleDeleteAccount = async () => {
+    await supabase.from('profiles').delete().eq('id', currentUser.id);
+    await supabase.auth.signOut();
+  };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -150,12 +155,35 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
             <SettingsRow label="Activity & mentions" enabled={settings.activityNotifications} onChange={() => toggle('activityNotifications')} />
 
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">Privacy</p>
-            <SettingsRow label="Private profile" enabled={settings.privateProfile} onChange={() => toggle('privateProfile')} />
             <SettingsRow label="Show my location" enabled={settings.showLocation} onChange={() => toggle('showLocation')} />
 
             <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg">
               Done
             </button>
+
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full mt-3 text-red-500 font-semibold py-3 rounded-lg border border-red-200"
+            >
+              Delete Account
+            </button>
+          </div>
+        </div>
+      )}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900">Delete account?</h3>
+            <p className="text-sm text-gray-500 mt-2">This will permanently delete your account and all your data. This cannot be undone.</p>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl">
+                Cancel
+              </button>
+              <button onClick={handleDeleteAccount} className="flex-1 bg-red-500 text-white font-semibold py-3 rounded-xl">
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
