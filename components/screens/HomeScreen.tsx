@@ -12,22 +12,21 @@ interface HomeScreenProps {
   onLeave: (eventId: string) => void;
 }
 
-type Tab = 'following' | 'foryou';
+type Tab = 'joined' | 'foryou';
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEvent, onNavigateToCreate, onNavigateToMap, onJoin, onLeave }) => {
   const [activeTab, setActiveTab] = useState<Tab>('foryou');
+  const now = new Date();
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
 
   const visibleEvents = events
     .filter(event => {
-      if (activeTab === 'following') {
-        // Events you've joined from other people — your schedule
-        return event.attendeeIds.includes(currentUser.id);
+      if (activeTab === 'joined') {
+        return event.attendeeIds.includes(currentUser.id) && new Date(event.date) >= now;
       }
-      // Discovery — events from other users only
-      return event.organizer.id !== currentUser.id;
+      return event.organizer.id !== currentUser.id && new Date(event.date) >= now;
     })
     .filter(event => {
       if (!searchQuery.trim()) return true;
@@ -68,16 +67,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
 
         <div className="flex space-x-8">
           <button
-            onClick={() => setActiveTab('following')}
-            className={`py-3 text-sm font-semibold ${activeTab === 'following' ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}
-          >
-            Following
-          </button>
-          <button
             onClick={() => setActiveTab('foryou')}
             className={`py-3 text-sm font-semibold ${activeTab === 'foryou' ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}
           >
-            For you
+            Discover
+          </button>
+          <button
+            onClick={() => setActiveTab('joined')}
+            className={`py-3 text-sm font-semibold ${activeTab === 'joined' ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}
+          >
+            My Events
           </button>
         </div>
 
@@ -130,14 +129,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
               {searchQuery
                 ? 'No events match your search'
                 : activeCategory
-                ? `No ${activeCategory} events yet`
-                : activeTab === 'following'
-                ? 'No events joined yet'
+                ? `No ${activeCategory} events coming up`
+                : activeTab === 'joined'
+                ? 'No upcoming events'
                 : 'No events around you yet'}
             </p>
             <p className="text-gray-400 text-sm mt-1">
-              {activeTab === 'following'
-                ? 'Join events from the For You tab to see them here'
+              {activeTab === 'joined'
+                ? 'Join events from Discover to see them here'
                 : 'Check back soon or create your own'}
             </p>
           </div>

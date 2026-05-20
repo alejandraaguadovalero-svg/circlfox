@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Event, User } from '../../types';
 import { MapPinIcon, UsersIcon, CalendarIcon } from '../icons';
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
+  Food: '🍜', Music: '🎵', Outdoors: '🌿', Other: '✨',
+};
 
 interface EventDetailScreenProps {
   event: Event;
@@ -15,6 +20,7 @@ interface EventDetailScreenProps {
 }
 
 const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onDelete, onGoToChat, onSelectUser }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
   const attendees = joinerIds.map(id => allUsers.find(u => u.id === id)).filter(Boolean) as User[];
   const isAttending = event.attendeeIds.includes(currentUser.id);
@@ -28,7 +34,13 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
   return (
     <div className="bg-white min-h-screen pb-24">
       <div className="relative">
-        <img src={event.imageUrl} alt={event.title} className="w-full h-60 object-cover" />
+        {event.imageUrl ? (
+          <img src={event.imageUrl} alt={event.title} className="w-full h-60 object-cover" />
+        ) : (
+          <div className="w-full h-60 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <span className="text-8xl">{CATEGORY_EMOJIS[event.category] ?? '✨'}</span>
+          </div>
+        )}
         <button onClick={onBack} className="absolute top-4 left-4 bg-white/70 backdrop-blur-sm rounded-full p-2 text-gray-800">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -68,7 +80,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
           <div className="flex gap-3">
             {onDelete && (
               <button
-                onClick={() => { if (confirm('Delete this event?')) onDelete(event.id); }}
+                onClick={() => setShowDeleteConfirm(true)}
                 className="flex-1 bg-red-50 text-red-500 font-bold py-3 px-4 rounded-lg"
               >
                 Delete
@@ -116,6 +128,20 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
           </button>
         )}
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900">Delete event?</h3>
+            <p className="text-sm text-gray-500 mt-2">This will permanently delete "{event.title}" and remove all attendees. This cannot be undone.</p>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl">Cancel</button>
+              <button onClick={() => { setShowDeleteConfirm(false); onDelete?.(event.id); }} className="flex-1 bg-red-500 text-white font-semibold py-3 rounded-xl">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

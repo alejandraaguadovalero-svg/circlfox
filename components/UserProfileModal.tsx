@@ -1,6 +1,11 @@
 import React from 'react';
 import { User, Event } from '../types';
 
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
+  Food: '🍜', Music: '🎵', Outdoors: '🌿', Other: '✨',
+};
+
 interface UserProfileModalProps {
   user: User;
   events: Event[];
@@ -54,7 +59,13 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, events, curre
               <div className="space-y-2">
                 {sharedEvents.map(event => (
                   <div key={event.id} className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
-                    <img src={event.imageUrl} alt={event.title} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                    {event.imageUrl ? (
+                      <img src={event.imageUrl} alt={event.title} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 text-2xl">
+                        {CATEGORY_EMOJIS[event.category] ?? '✨'}
+                      </div>
+                    )}
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-gray-900 truncate">{event.title}</p>
                       <p className="text-xs text-gray-500 truncate">{event.location}</p>

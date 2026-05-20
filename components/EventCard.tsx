@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { Event, User } from '../types';
+import { Event, User, Category } from '../types';
 import { UsersIcon } from './icons';
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
+  Food: '🍜', Music: '🎵', Outdoors: '🌿', Other: '✨',
+};
 
 interface EventCardProps {
   event: Event;
@@ -84,7 +89,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
       </div>
 
       <div className="cursor-pointer" onClick={() => onSelectEvent(event.id)}>
-        <img src={event.imageUrl} alt={event.title} className="w-full h-56 object-cover" />
+        {event.imageUrl ? (
+          <img src={event.imageUrl} alt={event.title} className="w-full h-56 object-cover" />
+        ) : (
+          <div className="w-full h-56 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <span className="text-7xl">{CATEGORY_EMOJIS[event.category] ?? '✨'}</span>
+          </div>
+        )}
       </div>
 
       <div className="p-4">
