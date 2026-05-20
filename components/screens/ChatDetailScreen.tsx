@@ -69,7 +69,13 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <img src={event.imageUrl} alt={event.title} className="w-9 h-9 rounded-full object-cover" />
+        {event.imageUrl ? (
+          <img src={event.imageUrl} alt={event.title} className="w-9 h-9 rounded-full object-cover" />
+        ) : (
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-base" style={{ background: 'linear-gradient(135deg, #7B4FFF30, #a855f730)' }}>
+            {({'Sports':'⚽','Drinks':'🍹','Arts':'🎨','Study Sessions':'📚','Food':'🍜','Music':'🎵','Outdoors':'🌿','Other':'✨'} as Record<string,string>)[event.category] ?? '✨'}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="font-bold text-gray-900 truncate text-sm">{event.title}</p>
           <p className="text-xs text-gray-400">{event.attendeeIds.length} members</p>

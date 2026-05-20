@@ -72,8 +72,15 @@ const ChatListScreen: React.FC<ChatListScreenProps> = ({ events, currentUser, ev
               className="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-gray-50"
             >
               <div className="relative flex-shrink-0">
-                <img src={event.imageUrl} alt={event.title} className="w-14 h-14 rounded-full object-cover" />
-                <span className="absolute bottom-0 right-0 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">#</span>
+                {event.imageUrl ? (
+                  <img src={event.imageUrl} alt={event.title} className="w-14 h-14 rounded-2xl object-cover" />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+                    style={{ background: 'linear-gradient(135deg, #7B4FFF20, #a855f720)' }}>
+                    {({'Sports':'⚽','Drinks':'🍹','Arts':'🎨','Study Sessions':'📚','Food':'🍜','Music':'🎵','Outdoors':'🌿','Other':'✨'} as Record<string,string>)[event.category] ?? '✨'}
+                  </div>
+                )}
+                <span className="absolute -bottom-1 -right-1 bg-primary text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow">{event.attendeeIds.length}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline">

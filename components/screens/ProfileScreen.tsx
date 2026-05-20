@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { User, Event } from '../../types';
-import { ChartBarIcon, UsersIcon } from '../icons';
 import { supabase } from '../../lib/supabase';
 
 interface ProfileScreenProps {
@@ -108,18 +107,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
 
   return (
     <div className="bg-cream min-h-screen pb-24">
-      <header className="sticky top-0 bg-white z-10 px-4 py-4 border-b border-gray-200 flex justify-between items-center">
-        <div className="w-6" />
-        <h1 className="text-xl font-bold text-secondary">Circl</h1>
-        <button onClick={() => setShowSettings(true)}>
-          <GearIcon className="h-6 w-6 text-gray-500" />
+      {/* Gradient banner + gear */}
+      <div className="relative">
+        <div className="h-36 w-full" style={{ background: 'linear-gradient(135deg, #7B4FFF 0%, #a855f7 50%, #FF6B35 100%)' }} />
+        <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 w-9 h-9 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+          <GearIcon className="h-5 w-5 text-white" />
         </button>
-      </header>
+      </div>
 
-      <div className="p-4">
-        <div className="flex flex-col items-center text-center">
+      <div className="px-4 pb-4">
+        <div className="flex flex-col items-center text-center -mt-12">
           <button onClick={() => fileInputRef.current?.click()} className="relative" disabled={uploadingAvatar}>
-            <img src={avatarUrl} alt={currentUser.name} className="w-24 h-24 rounded-full shadow-lg object-cover" />
+            <img src={avatarUrl} alt={currentUser.name} className="w-24 h-24 rounded-full shadow-xl object-cover border-4 border-white" />
             <div className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 shadow">
               {uploadingAvatar ? (
                 <svg className="h-4 w-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
@@ -135,27 +134,27 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
             </div>
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-          <h2 className="text-2xl font-bold text-gray-800 mt-4">{currentUser.name}</h2>
-          {currentUser.username && <p className="text-primary font-medium text-sm">@{currentUser.username}</p>}
-          <p className="text-gray-500 mt-1 text-sm">{currentUser.bio}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mt-3">{currentUser.name}</h2>
+          {currentUser.username && <p className="text-primary font-semibold text-sm">@{currentUser.username}</p>}
+          {currentUser.bio && <p className="text-gray-500 mt-1.5 text-sm max-w-xs">{currentUser.bio}</p>}
           <button onClick={() => { setEditUsername(currentUser.username); setEditBio(currentUser.bio); setEditInterests(currentUser.interests); setEditError(''); setShowEditProfile(true); }}
-            className="mt-3 text-sm font-semibold text-primary border border-primary/30 px-4 py-1.5 rounded-full">
+            className="mt-3 text-sm font-semibold text-primary border border-primary/30 px-5 py-1.5 rounded-full bg-primary/5">
             Edit Profile
           </button>
         </div>
 
-        <div className="mt-6">
-          <h3 className="font-semibold text-gray-800 mb-2">My vibe ✨</h3>
-          <div className="flex flex-wrap gap-2">
-            {currentUser.interests.length > 0 ? currentUser.interests.map(interest => (
-              <span key={interest} className="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-lg">{interest}</span>
-            )) : <p className="text-gray-400 text-sm">No interests added yet</p>}
-          </div>
+        <div className="grid grid-cols-2 gap-3 mt-6 text-center">
+          <StatCard label="Circls Started" value={createdEvents.length.toString()} gradient="linear-gradient(135deg, #7B4FFF15, #a855f715)" color="#7B4FFF" />
+          <StatCard label="Plans Attended" value={attendedEvents.length.toString()} gradient="linear-gradient(135deg, #FF6B3515, #f9731615)" color="#FF6B35" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-6 text-center">
-          <StatCard icon={<ChartBarIcon className="w-6 h-6 text-primary" />} label="Circls Started" value={createdEvents.length.toString()} />
-          <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Plans Attended" value={attendedEvents.length.toString()} />
+        <div className="mt-5">
+          <h3 className="font-semibold text-gray-800 mb-2.5">My vibe ✨</h3>
+          <div className="flex flex-wrap gap-2">
+            {currentUser.interests.length > 0 ? currentUser.interests.map(interest => (
+              <span key={interest} className="bg-primary/10 text-primary text-sm font-semibold px-3.5 py-1.5 rounded-full">{interest}</span>
+            )) : <p className="text-gray-400 text-sm">No interests added yet — edit your profile</p>}
+          </div>
         </div>
 
         <div className="mt-4">
@@ -278,13 +277,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
   );
 };
 
-const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
-  <div className="bg-gray-50 p-4 rounded-lg">
-    <div className="flex items-center justify-center gap-2">
-      {icon}
-      <span className="font-semibold text-gray-700 text-sm">{label}</span>
-    </div>
-    <p className="text-4xl font-bold mt-2">{value}</p>
+const StatCard: React.FC<{ label: string; value: string; gradient: string; color: string }> = ({ label, value, gradient, color }) => (
+  <div className="p-4 rounded-2xl" style={{ background: gradient }}>
+    <p className="text-3xl font-black" style={{ color }}>{value}</p>
+    <p className="text-xs font-semibold text-gray-500 mt-1">{label}</p>
   </div>
 );
 

@@ -58,7 +58,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     const isInvalidCreds = signInError.message.toLowerCase().includes('invalid') || signInError.message.toLowerCase().includes('credentials');
 
     if (isInvalidCreds) {
-      // Try creating a new account — if this also fails, the email exists with a different password
       let signUpData: any, signUpError: any;
       try {
         const result = await withTimeout(supabase.auth.signUp({ email, password }), 25000);
@@ -67,7 +66,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         setPasswordError(e.message); setLoading(false); return;
       }
       if (!signUpError && signUpData?.user) {
-        // Create stub profile so the trigger failure doesn't block signup
         await supabase.from('profiles').upsert({
           id: signUpData.user.id,
           full_name: email.split('@')[0],
@@ -75,7 +73,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         onLogin();
         return;
       }
-      // Email already registered but password is wrong
       if (signUpError.message.toLowerCase().includes('already registered') || signUpError.message.toLowerCase().includes('already exists')) {
         setPasswordError('Incorrect password. Please try again.');
       } else {
@@ -89,38 +86,31 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setLoading(false);
   };
 
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) {
-      setEmailError('Google sign-in is not set up yet. Use email and password below.');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-white flex flex-col p-6 font-sans">
-      <header className="flex-shrink-0 py-4">
+    <div className="min-h-screen flex flex-col font-sans" style={{ background: '#FFFBF5' }}>
+      {/* Top accent strip */}
+      <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg, #7B4FFF, #a855f7, #FF6B35)' }} />
+
+      <header className="px-6 pt-4 pb-2 flex-shrink-0">
         {step === 'password' && (
-          <button onClick={() => { setStep('email'); setPasswordError(''); }} className="text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <button onClick={() => { setStep('email'); setPasswordError(''); }} className="text-gray-500 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
         )}
       </header>
 
-      <main className="flex-grow flex flex-col justify-center">
-        <div className="text-center">
-          <img src="/logo.png" alt="Circl" className="mx-auto object-contain drop-shadow-sm" style={{ width: '85vw', maxWidth: '320px' }} />
+      <main className="flex-grow flex flex-col justify-center px-6">
+        <div className="text-center mb-8">
+          <img src="/logo.png" alt="Circl" className="mx-auto object-contain drop-shadow-sm" style={{ width: '70vw', maxWidth: '280px' }} />
         </div>
 
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {step === 'email' ? 'Welcome to Circl 👋' : 'Enter your password'}
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-black/5">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            {step === 'email' ? 'Welcome back 👋' : 'Enter your password'}
           </h2>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-400 text-sm mb-5">
             {step === 'email' ? 'Find your people in Madrid.' : email}
           </p>
 
@@ -131,13 +121,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 value={email}
                 onChange={e => { setEmail(e.target.value); setEmailError(''); }}
                 onKeyDown={e => e.key === 'Enter' && handleContinue()}
-                placeholder="email@domain.com"
-                className={`w-full mt-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${emailError ? 'border-red-400' : 'border-gray-300'}`}
+                placeholder="your@email.com"
+                className={`w-full px-4 py-3.5 border rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-50 ${emailError ? 'border-red-400' : 'border-gray-200'}`}
               />
-              {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+              {emailError && <p className="text-red-500 text-xs mt-1.5">{emailError}</p>}
             </>
           ) : (
-            <div className="mt-4">
+            <div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -146,36 +136,36 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   onKeyDown={e => e.key === 'Enter' && handleContinue()}
                   placeholder="Password (min 6 characters)"
                   autoFocus
-                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${passwordError ? 'border-red-400' : 'border-gray-300'}`}
+                  className={`w-full px-4 py-3.5 pr-12 border rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-50 ${passwordError ? 'border-red-400' : 'border-gray-200'}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
                 >
                   <EyeIcon show={showPassword} />
                 </button>
               </div>
-              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+              {passwordError && <p className="text-red-500 text-xs mt-1.5">{passwordError}</p>}
             </div>
           )}
 
           <button
             onClick={handleContinue}
             disabled={loading}
-            className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg mt-4 transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="w-full text-white font-bold py-3.5 px-4 rounded-2xl mt-4 transition-all active:scale-95 disabled:opacity-60 text-sm"
+            style={{ background: 'linear-gradient(135deg, #7B4FFF, #a855f7)' }}
           >
             {loading ? 'Please wait…' : step === 'email' ? 'Continue →' : 'Let me in →'}
           </button>
         </div>
-
       </main>
 
-      <footer className="flex-shrink-0 text-center mt-8">
+      <footer className="flex-shrink-0 text-center px-6 py-6">
         <p className="text-xs text-gray-400">
-          By clicking continue, you agree to our{' '}
-          <a href="#" className="underline">Terms of Service</a> and{' '}
-          <a href="#" className="underline">Privacy Policy</a>
+          By continuing, you agree to our{' '}
+          <a href="#" className="underline text-gray-500">Terms</a> and{' '}
+          <a href="#" className="underline text-gray-500">Privacy Policy</a>
         </p>
       </footer>
     </div>

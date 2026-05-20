@@ -125,9 +125,32 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
         )}
 
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-          <p className="text-sm font-semibold text-gray-500">
-            <span className="text-secondary font-bold">{joinerIds.length}</span> going · <span className={spotsLeft <= 3 && !isFull ? 'text-accent font-bold' : ''}>{isFull ? 'Full' : `${spotsLeft} spots left`}</span>
-          </p>
+          {/* Avatar stack + count */}
+          <div className="flex items-center gap-2">
+            {joinerIds.length > 0 && (
+              <div className="flex -space-x-2">
+                {joinerIds.slice(0, 3).map((id, i) => (
+                  <img
+                    key={id}
+                    src={`https://i.pravatar.cc/32?u=${id}`}
+                    alt=""
+                    className="w-6 h-6 rounded-full border-2 border-white object-cover"
+                    style={{ zIndex: 3 - i }}
+                  />
+                ))}
+              </div>
+            )}
+            <p className="text-sm font-semibold text-gray-500">
+              {joinerIds.length > 0
+                ? <><span className="text-secondary font-bold">{joinerIds.length}</span> going</>
+                : 'Be the first'
+              }
+              {!isFull && spotsLeft <= 5 && (
+                <span className={spotsLeft <= 3 ? 'text-accent font-bold' : ''}> · {spotsLeft} left</span>
+              )}
+              {isFull && <span className="text-gray-400"> · Full</span>}
+            </p>
+          </div>
           {isOrganizer ? (
             <span className="font-semibold py-2 px-4 rounded-2xl text-xs bg-primary/10 text-primary" onClick={e => e.stopPropagation()}>Your plan</span>
           ) : (
@@ -141,7 +164,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
                 : 'bg-primary text-white shadow-sm'
               }`}
             >
-              {isAttending ? '✓ Joined' : isFull ? 'Full' : 'Join the Circl'}
+              {isAttending ? '✓ Joined' : isFull ? 'Full' : 'Join'}
             </button>
           )}
         </div>
