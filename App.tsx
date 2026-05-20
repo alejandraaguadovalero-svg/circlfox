@@ -80,11 +80,11 @@ const App: React.FC = () => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
+      if (event === 'SIGNED_OUT') {
         setCurrentUser(null);
         setUsers(MOCK_USERS);
         setAppState('login');
-      } else if (event === 'SIGNED_IN') {
+      } else if (event === 'SIGNED_IN' && session) {
         await fetchProfile(session.user.id, session.user.email);
       }
     });

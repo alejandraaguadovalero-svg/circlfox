@@ -49,8 +49,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
     if (isInvalidCreds) {
       // Try creating a new account — if this also fails, the email exists with a different password
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (!signUpError) {
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+      if (!signUpError && signUpData.user) {
+        // Create stub profile so the trigger failure doesn't block signup
+        await supabase.from('profiles').upsert({
+          id: signUpData.user.id,
+          full_name: email.split('@')[0],
+        }, { onConflict: 'id' });
         onLogin();
         return;
       }
