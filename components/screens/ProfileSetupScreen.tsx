@@ -150,10 +150,10 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
             onChange={e => setBio(e.target.value)}
             placeholder="Tell others a bit about yourself..."
             rows={3}
-            maxLength={200}
+            maxLength={150}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
-          <p className="text-xs text-gray-400 text-right">{bio.length}/200</p>
+          <p className="text-xs text-gray-400 text-right">{bio.length}/150</p>
         </div>
 
         <div>

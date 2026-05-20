@@ -160,7 +160,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     if (!description.trim()) errs.push('Description is required.');
     if (category === Category.OTHER && !eventType.trim()) errs.push('Please describe your event type.');
     const max = parseInt(maxParticipants, 10);
-    if (isNaN(max) || max < 2 || max > 200) errs.push('Max attendees must be between 2 and 200.');
+    if (isNaN(max) || max < 2 || max > 50) errs.push('Max attendees must be between 2 and 50.');
     if (errs.length) { setErrors(errs); return; }
     setErrors([]);
     setShowSuccess(true);
@@ -292,13 +292,13 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
             <span className="font-semibold text-gray-800 flex-shrink-0">Max Attendees</span>
             <div className="flex items-center gap-2">
-              <input type="number" min="2" max="200" value={maxParticipants}
+              <input type="number" min="2" max="50" value={maxParticipants}
                 onChange={e => {
-                  const v = Math.min(200, Math.max(2, parseInt(e.target.value) || 2));
+                  const v = Math.min(50, Math.max(2, parseInt(e.target.value) || 2));
                   setMaxParticipants(v.toString());
                 }}
                 className="text-right text-gray-600 focus:outline-none bg-transparent w-16" />
-              <span className="text-xs text-gray-400">/ 200</span>
+              <span className="text-xs text-gray-400">/ 50</span>
             </div>
           </div>
         </div>
@@ -306,9 +306,11 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
         {/* Description */}
         <div className="px-4 mt-5">
           <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Description</p>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4}
+          <textarea value={description} onChange={e => setDescription(e.target.value.slice(0, 300))} rows={4}
             placeholder="Tell people what this event is about..."
+            maxLength={300}
             className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white placeholder-gray-300 resize-none" />
+          <p className="text-xs text-gray-400 text-right mt-1">{description.length}/300</p>
         </div>
 
         {errors.length > 0 && (
