@@ -60,7 +60,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
         id: userId,
         full_name: name.trim(),
         age: Number(age),
-        city: city.trim() || null,
+        city: 'Madrid',
         bio: bio.trim() || null,
         interests,
         avatar_url: avatarUrl,
@@ -76,7 +76,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
       id: userId,
       name: name.trim(),
       age: Number(age),
-      city: city.trim(),
+      city: 'Madrid',
       bio: bio.trim(),
       interests,
       avatarUrl,
@@ -130,29 +130,17 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Age *</label>
-            <input
-              type="number"
-              value={age}
-              onChange={e => { setAge(e.target.value); setError(''); }}
-              placeholder="e.g. 22"
-              min="13"
-              max="120"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
-            <input
-              type="text"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-              placeholder="e.g. London"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Age *</label>
+          <input
+            type="number"
+            value={age}
+            onChange={e => { setAge(e.target.value); setError(''); }}
+            placeholder="e.g. 22"
+            min="13"
+            max="120"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          />
         </div>
 
         <div>
