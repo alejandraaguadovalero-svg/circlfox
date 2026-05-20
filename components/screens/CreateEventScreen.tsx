@@ -139,10 +139,10 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     if (!file) return;
     setUploadingImage(true);
     const ext = file.name.split('.').pop();
-    const path = `${Date.now()}.${ext}`;
-    const { data, error } = await supabase.storage.from('event-images').upload(path, file, { upsert: true });
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { data, error } = await supabase.storage.from('event-images').upload(path, file);
     if (error || !data) {
-      alert('Failed to upload image. Please try a preset instead.');
+      alert(`Upload failed: ${error?.message ?? 'unknown error'}. Please try a preset image instead.`);
       setUploadingImage(false);
       return;
     }
