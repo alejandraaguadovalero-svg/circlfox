@@ -30,6 +30,8 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
   const eventDate = new Date(event.date);
   const formattedDate = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const formattedTime = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const formattedEndTime = event.endDate ? new Date(event.endDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : null;
+  const timeDisplay = formattedEndTime ? `${formattedTime} – ${formattedEndTime}` : formattedTime;
 
   return (
     <div className="bg-white min-h-screen pb-24">
@@ -52,7 +54,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
         <h1 className="text-3xl font-bold text-gray-900 mt-2">{event.title}</h1>
         
         <div className="mt-6 space-y-4 text-gray-700">
-            <InfoRow icon={<CalendarIcon className="w-6 h-6 text-primary" />} text={`${formattedDate} at ${formattedTime}`} />
+            <InfoRow icon={<CalendarIcon className="w-6 h-6 text-primary" />} text={`${formattedDate} · ${timeDisplay}`} />
             <InfoRow icon={<MapPinIcon className="w-6 h-6 text-primary" />} text={event.location} />
             <InfoRow icon={<UsersIcon className="w-6 h-6 text-primary" />} text={`${joinerIds.length} / ${event.maxParticipants} going`} />
         </div>

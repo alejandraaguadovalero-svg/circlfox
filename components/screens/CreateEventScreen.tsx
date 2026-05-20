@@ -34,6 +34,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     d.setHours(14, 0, 0, 0);
     return d.toISOString().slice(0, 16);
   });
+  const [endTime, setEndTime] = useState('16:00');
   const [location, setLocation] = useState('');
   const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number }>({ lat: 40.4168, lng: -3.7038 });
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -98,11 +99,19 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     setErrors([]);
     setShowSuccess(true);
     setTimeout(() => {
+      const startDate = new Date(date);
+      const end = new Date(startDate);
+      const [endH, endM] = endTime.split(':').map(Number);
+      end.setHours(endH, endM, 0, 0);
+      // If end is before or equal to start, assume next day
+      if (end <= startDate) end.setDate(end.getDate() + 1);
+
       onCreateEvent({
         title: title.trim(),
         description: description.trim(),
         location: location.trim(),
-        date: new Date(date).toISOString(),
+        date: startDate.toISOString(),
+        endDate: end.toISOString(),
         maxParticipants,
         category,
         imageUrl: uploadedImageUrl ?? '',
@@ -183,8 +192,22 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           </div>
 
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 flex-shrink-0">Date & Time</span>
-            <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)}
+            <span className="font-semibold text-gray-800 flex-shrink-0">Date & Start</span>
+            <input type="datetime-local" value={date} onChange={e => {
+              setDate(e.target.value);
+              // Auto-advance end time to start + 2h when start changes
+              if (e.target.value) {
+                const s = new Date(e.target.value);
+                s.setHours(s.getHours() + 2);
+                setEndTime(`${String(s.getHours()).padStart(2, '0')}:${String(s.getMinutes()).padStart(2, '0')}`);
+              }
+            }}
+              className="text-right text-gray-600 focus:outline-none bg-transparent text-sm" />
+          </div>
+
+          <div className="border-b border-gray-100 py-3 flex items-center justify-between">
+            <span className="font-semibold text-gray-800 flex-shrink-0">End Time</span>
+            <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)}
               className="text-right text-gray-600 focus:outline-none bg-transparent text-sm" />
           </div>
 

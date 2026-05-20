@@ -36,7 +36,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
 
   const eventDate = new Date(event.date);
   const timeStr = eventDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  const dateStr = isTonight ? `Tonight · ${timeStr}` : eventDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ` · ${timeStr}`;
+  const endTimeStr = event.endDate ? new Date(event.endDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : null;
+  const timeRange = endTimeStr ? `${timeStr} – ${endTimeStr}` : timeStr;
+  const dateStr = isTonight ? `Tonight · ${timeRange}` : eventDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ` · ${timeRange}`;
 
   const handleJoinLeave = (e: React.MouseEvent) => {
     e.stopPropagation();

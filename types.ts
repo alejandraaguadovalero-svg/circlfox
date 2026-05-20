@@ -15,6 +15,7 @@ export interface Event {
   description: string;
   imageUrl: string;
   date: string;
+  endDate?: string;
   location: string;
   lat: number;
   lng: number;
