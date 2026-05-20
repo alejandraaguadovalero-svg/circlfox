@@ -261,7 +261,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-4 pb-8 bg-white border-t">
         <button onClick={handleSubmit}
           className="w-full bg-primary text-white font-bold py-4 rounded-xl text-base">
-          Start this Circl ✦
+          Start this Circl
         </button>
       </div>
     </div>

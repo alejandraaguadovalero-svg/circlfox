@@ -132,7 +132,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
             disabled={isFull}
             className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg disabled:bg-gray-400"
           >
-            {isFull ? 'This Circl is Full' : 'Join this Circl ✦'}
+            {isFull ? 'This Circl is Full' : 'Join this Circl'}
           </button>
         )}
       </div>

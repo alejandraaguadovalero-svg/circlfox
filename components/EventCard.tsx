@@ -6,6 +6,17 @@ const CATEGORY_EMOJIS: Record<string, string> = {
   Food: '🍜', Music: '🎵', Outdoors: '🌿', Other: '✨',
 };
 
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  Sports: 'from-green-400 to-emerald-600',
+  Drinks: 'from-purple-400 to-pink-500',
+  Arts: 'from-orange-400 to-rose-500',
+  'Study Sessions': 'from-blue-400 to-indigo-600',
+  Food: 'from-yellow-400 to-orange-500',
+  Music: 'from-violet-500 to-purple-700',
+  Outdoors: 'from-teal-400 to-green-600',
+  Other: 'from-gray-400 to-slate-600',
+};
+
 interface EventCardProps {
   event: Event;
   currentUser: User;
@@ -52,8 +63,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
         {event.imageUrl ? (
           <img src={event.imageUrl} alt={event.title} className="w-full h-52 object-cover" />
         ) : (
-          <div className="w-full h-52 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <span className="text-8xl">{CATEGORY_EMOJIS[event.category] ?? '✨'}</span>
+          <div className={`w-full h-52 bg-gradient-to-br ${CATEGORY_GRADIENTS[event.category] ?? 'from-primary to-primary/60'} flex flex-col items-center justify-center gap-2`}>
+            <span className="text-7xl drop-shadow-md">{CATEGORY_EMOJIS[event.category] ?? '✨'}</span>
+            <span className="text-white/80 text-sm font-semibold tracking-wide">{event.category}</span>
           </div>
         )}
 
@@ -117,15 +129,16 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
             <span className="text-secondary font-bold">{joinerIds.length}</span> going · <span className={spotsLeft <= 3 && !isFull ? 'text-accent font-bold' : ''}>{isFull ? 'Full' : `${spotsLeft} spots left`}</span>
           </p>
           {isOrganizer ? (
-            <span className="font-semibold py-2 px-4 rounded-2xl text-xs bg-gray-100 text-gray-500" onClick={e => e.stopPropagation()}>Your plan ✦</span>
+            <span className="font-semibold py-2 px-4 rounded-2xl text-xs bg-primary/10 text-primary" onClick={e => e.stopPropagation()}>Your plan</span>
           ) : (
             <button
               onClick={handleJoinLeave}
               disabled={!isAttending && isFull}
-              className={`font-bold py-2 px-5 rounded-2xl text-sm transition-all ${
+              className={`font-bold py-2 px-5 rounded-2xl text-sm transition-all active:scale-95 ${
                 isAttending ? 'bg-gray-100 text-gray-600'
                 : isFull ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-primary text-white shadow-sm active:scale-95'
+                : spotsLeft <= 3 ? 'bg-accent text-white shadow-sm'
+                : 'bg-primary text-white shadow-sm'
               }`}
             >
               {isAttending ? '✓ Joined' : isFull ? 'Full' : 'Join the Circl'}

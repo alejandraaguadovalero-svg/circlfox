@@ -289,7 +289,7 @@ const App: React.FC = () => {
   const selectedProfileUser = selectedProfileUserId ? users.find(u => u.id === selectedProfileUserId) : null;
 
   return (
-    <div className="max-w-lg mx-auto bg-white min-h-screen flex flex-col font-sans">
+    <div className="max-w-lg mx-auto bg-cream min-h-screen flex flex-col font-sans">
       <main className="flex-grow">
         {eventsLoading && events.length === 0 ? (
           <div className="flex items-center justify-center h-64">
