@@ -44,7 +44,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
     setLoading(true);
     setError('');
 
-    let avatarUrl = `https://i.pravatar.cc/150?u=${userId}`;
+    let avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name.trim())}&background=7B4FFF&color=fff&size=150`;
     if (avatarFile) {
       const ext = avatarFile.name.split('.').pop();
       const path = `${userId}/avatar.${ext}`;
@@ -95,11 +95,19 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
         {/* Avatar picker */}
         <div className="flex flex-col items-center py-2">
           <button onClick={() => fileInputRef.current?.click()} className="relative">
-            <img
-              src={avatarPreview ?? `https://i.pravatar.cc/150?u=${userId}`}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
-            />
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gray-100 border-4 border-white shadow-md flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            )}
             <div className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 shadow">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
