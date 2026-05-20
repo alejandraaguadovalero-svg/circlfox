@@ -113,7 +113,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
       <div className="p-4">
         <div className="flex gap-2 mb-4">
           <button onClick={onNavigateToCreate} className="flex-1 bg-primary text-white font-bold py-3 rounded-2xl shadow-sm">
-            ✦ Start a Circl
+            ✦ Start a Kruh
           </button>
           <button onClick={onNavigateToMap} className="bg-white text-gray-700 font-semibold py-3 px-4 rounded-2xl flex items-center gap-1.5 border border-black/5 shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -144,7 +144,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
             <p className="text-gray-400 text-sm mt-1">
               {activeTab === 'joined'
                 ? 'Join plans from Discover to see them here'
-                : 'Be the first — start a Circl!'}
+                : 'Be the first — start a Kruh!'}
             </p>
           </div>
         )}

@@ -96,7 +96,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
       <main className="flex-grow flex flex-col justify-center px-6 -mt-8">
         <div className="mb-8 text-center">
-          <img src="/logo.png" alt="Circl" className="mx-auto object-contain" style={{ width: '60vw', maxWidth: '240px' }} />
+          <img src="/logo.png" alt="Kruh" className="mx-auto object-contain" style={{ width: '60vw', maxWidth: '240px' }} />
         </div>
 
         <h2 className="text-2xl font-black text-gray-900 mb-1">

@@ -144,7 +144,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-6 text-center">
-          <StatCard label="Circls Started" value={createdEvents.length.toString()} bg="bg-primary/10" color="text-primary" />
+          <StatCard label="Kruhs Started" value={createdEvents.length.toString()} bg="bg-primary/10" color="text-primary" />
           <StatCard label="Plans Attended" value={attendedEvents.length.toString()} bg="bg-accent/10" color="text-accent" />
         </div>
 

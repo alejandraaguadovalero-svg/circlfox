@@ -55,7 +55,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
   const handleReport = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMenu(false);
-    alert('Reported. Thanks for keeping Circl safe!');
+    alert('Reported. Thanks for keeping Kruh safe!');
   };
 
   return (

@@ -212,7 +212,7 @@ const App: React.FC = () => {
   if (appState === 'loading') {
     return (
       <div className="max-w-lg mx-auto min-h-screen bg-primary flex items-center justify-center">
-        <img src="/logo.png" alt="Circl" className="w-32 h-32 object-contain animate-pulse" />
+        <img src="/logo.png" alt="Kruh" className="w-32 h-32 object-contain animate-pulse" />
       </div>
     );
   }

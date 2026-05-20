@@ -129,7 +129,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-secondary mx-auto">Start a Circl</h1>
+        <h1 className="text-xl font-bold text-secondary mx-auto">Start a Kruh</h1>
         <button onClick={handleSubmit} className="text-primary font-bold text-sm">Post</button>
       </header>
 
@@ -187,7 +187,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
             <span className="font-semibold text-gray-800 flex-shrink-0">What's the plan?</span>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="Name your Circl"
+              placeholder="Name your Kruh"
               className="text-right text-gray-600 focus:outline-none bg-transparent flex-1 ml-4 placeholder-gray-300" />
           </div>
 
@@ -275,7 +275,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="text-xl font-bold text-gray-900">Your Circl is live! ✦</p>
+            <p className="text-xl font-bold text-gray-900">Your Kruh is live! ✦</p>
             <p className="text-gray-500 text-sm">People can now join your plan</p>
           </div>
         </div>
@@ -284,7 +284,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-4 pb-8 bg-white border-t">
         <button onClick={handleSubmit}
           className="w-full bg-primary text-white font-bold py-4 rounded-xl text-base">
-          Start this Circl
+          Start this Kruh
         </button>
       </div>
     </div>

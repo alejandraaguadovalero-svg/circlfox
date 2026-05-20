@@ -17,7 +17,7 @@ const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <img
           src="/logo.png"
-          alt="Circl"
+          alt="Kruh"
           style={{ width: '75vw', maxWidth: '300px' }}
           className="object-contain"
         />
@@ -25,7 +25,7 @@ const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
         <div className="text-center">
           <p className="text-white/50 text-sm font-medium tracking-wide uppercase">Madrid · Social Events</p>
           <p className="text-white/80 text-lg font-medium mt-2 leading-relaxed">
-            Move cities. Find your people.<br />Always have a Circl.
+            Move cities. Find your people.<br />Always have a Kruh.
           </p>
         </div>
       </div>

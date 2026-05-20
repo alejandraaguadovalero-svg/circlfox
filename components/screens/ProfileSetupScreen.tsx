@@ -52,8 +52,8 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
     if (username.includes(' ')) { setError('Username cannot contain spaces.'); return; }
     if (!dob) { setError('Please enter your date of birth.'); return; }
     const age = calcAge(dob);
-    if (age < 17) { setError('You must be at least 17 years old to join Circl.'); return; }
-    if (age > 32) { setError('Circl is for people aged 17–32. Sorry!'); return; }
+    if (age < 17) { setError('You must be at least 17 years old to join Kruh.'); return; }
+    if (age > 32) { setError('Kruh is for people aged 17–32. Sorry!'); return; }
 
     setLoading(true);
     setError('');
@@ -110,7 +110,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <header className="px-6 pt-10 pb-4">
-        <img src="/logo.png" alt="Circl" className="w-12 h-12 object-contain mb-6" />
+        <img src="/logo.png" alt="Kruh" className="w-12 h-12 object-contain mb-6" />
         <h1 className="text-2xl font-bold text-gray-900">Set up your profile</h1>
         <p className="text-gray-500 mt-1 text-sm">Let others know who you are</p>
       </header>
