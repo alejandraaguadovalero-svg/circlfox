@@ -15,9 +15,10 @@ interface EventDetailScreenProps {
 }
 
 const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onDelete, onGoToChat, onSelectUser }) => {
-  const attendees = event.attendeeIds.map(id => allUsers.find(u => u.id === id)).filter(Boolean) as User[];
+  const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
+  const attendees = joinerIds.map(id => allUsers.find(u => u.id === id)).filter(Boolean) as User[];
   const isAttending = event.attendeeIds.includes(currentUser.id);
-  const isFull = event.attendeeIds.length >= event.maxParticipants;
+  const isFull = joinerIds.length >= event.maxParticipants;
   const isOrganizer = event.organizer.id === currentUser.id;
 
   const eventDate = new Date(event.date);
@@ -41,7 +42,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
         <div className="mt-6 space-y-4 text-gray-700">
             <InfoRow icon={<CalendarIcon className="w-6 h-6 text-primary" />} text={`${formattedDate} at ${formattedTime}`} />
             <InfoRow icon={<MapPinIcon className="w-6 h-6 text-primary" />} text={event.location} />
-            <InfoRow icon={<UsersIcon className="w-6 h-6 text-primary" />} text={`${event.attendeeIds.length} / ${event.maxParticipants} going`} />
+            <InfoRow icon={<UsersIcon className="w-6 h-6 text-primary" />} text={`${joinerIds.length} / ${event.maxParticipants} going`} />
         </div>
 
         <div className="mt-6 border-t pt-6">
@@ -50,7 +51,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
         </div>
 
         <div className="mt-6 border-t pt-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Attendees ({attendees.length})</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Attendees ({joinerIds.length})</h2>
             <div className="flex flex-wrap gap-4">
             {attendees.map(user => (
                 <button key={user.id} onClick={() => onSelectUser?.(user.id)} className="flex flex-col items-center w-16 text-center">

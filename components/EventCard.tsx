@@ -22,8 +22,10 @@ function timeAgo(dateStr: string): string {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent, onJoin, onLeave }) => {
+  const isOrganizer = event.organizer.id === currentUser.id;
   const isAttending = event.attendeeIds.includes(currentUser.id);
-  const isFull = event.attendeeIds.length >= event.maxParticipants;
+  const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
+  const isFull = joinerIds.length >= event.maxParticipants;
   const [showMenu, setShowMenu] = useState(false);
 
   const handleJoinLeave = (e: React.MouseEvent) => {
@@ -91,29 +93,33 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center">
             <div className="flex -space-x-2">
-              {event.attendeeIds.slice(0, 3).map(id => (
+              {joinerIds.slice(0, 3).map(id => (
                 <img key={id} src={`https://i.pravatar.cc/150?u=user${id}`} alt="" className="w-8 h-8 rounded-full border-2 border-white" />
               ))}
             </div>
-            {event.attendeeIds.length > 0 && (
+            {joinerIds.length > 0 && (
               <p className="ml-2 text-sm text-gray-600">
-                {event.attendeeIds.length} attendee{event.attendeeIds.length > 1 ? 's' : ''}
+                {joinerIds.length} attendee{joinerIds.length > 1 ? 's' : ''}
               </p>
             )}
           </div>
-          <button
-            onClick={handleJoinLeave}
-            disabled={!isAttending && isFull}
-            className={`font-semibold py-2 px-4 rounded-lg text-sm transition-colors ${
-              isAttending
-                ? 'bg-gray-200 text-gray-700'
-                : isFull
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-primary/10 text-primary'
-            }`}
-          >
-            {isAttending ? 'Joined' : isFull ? 'Full' : 'Join Group'}
-          </button>
+          {isOrganizer ? (
+            <span className="font-semibold py-2 px-4 rounded-lg text-sm bg-gray-100 text-gray-500">Your event</span>
+          ) : (
+            <button
+              onClick={handleJoinLeave}
+              disabled={!isAttending && isFull}
+              className={`font-semibold py-2 px-4 rounded-lg text-sm transition-colors ${
+                isAttending
+                  ? 'bg-gray-200 text-gray-700'
+                  : isFull
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-primary/10 text-primary'
+              }`}
+            >
+              {isAttending ? 'Joined' : isFull ? 'Full' : 'Join Group'}
+            </button>
+          )}
         </div>
       </div>
     </div>
