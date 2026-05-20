@@ -107,7 +107,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
     .slice(0, 3);
 
   return (
-    <div className="bg-white min-h-screen pb-24">
+    <div className="bg-cream min-h-screen pb-24">
       <header className="sticky top-0 bg-white z-10 px-4 py-4 border-b border-gray-200 flex justify-between items-center">
         <div className="w-6" />
         <h1 className="text-xl font-bold text-secondary">Circl</h1>
@@ -145,7 +145,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
         </div>
 
         <div className="mt-6">
-          <h3 className="font-semibold text-gray-800 mb-2">Interests</h3>
+          <h3 className="font-semibold text-gray-800 mb-2">My vibe ✨</h3>
           <div className="flex flex-wrap gap-2">
             {currentUser.interests.length > 0 ? currentUser.interests.map(interest => (
               <span key={interest} className="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-lg">{interest}</span>
@@ -154,8 +154,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-6 text-center">
-          <StatCard icon={<ChartBarIcon className="w-6 h-6 text-primary" />} label="Events Created" value={createdEvents.length.toString()} />
-          <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Events Attended" value={attendedEvents.length.toString()} />
+          <StatCard icon={<ChartBarIcon className="w-6 h-6 text-primary" />} label="Circls Started" value={createdEvents.length.toString()} />
+          <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Plans Attended" value={attendedEvents.length.toString()} />
         </div>
 
         <div className="mt-4">

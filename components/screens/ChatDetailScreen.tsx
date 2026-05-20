@@ -119,6 +119,18 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
         <div ref={bottomRef} />
       </div>
 
+      {/* Quick replies */}
+      {messages.length === 0 && (
+        <div className="fixed bottom-[68px] left-0 right-0 max-w-lg mx-auto px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
+          {["I'm in! 🙌", "Anyone coming alone?", "Where exactly?", "Drinks after? 🍹"].map(q => (
+            <button key={q} onClick={() => onSendMessage(q)}
+              className="flex-shrink-0 bg-primary/10 text-primary text-xs font-semibold px-3 py-2 rounded-full border border-primary/20">
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Input */}
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-4 py-3 bg-white border-t border-gray-200 flex items-center gap-3">
         <input

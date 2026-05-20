@@ -117,11 +117,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         </div>
 
         <div className="mt-8">
-          <h2 className="text-xl font-semibold text-gray-800">
-            {step === 'email' ? 'Sign in or create account' : 'Enter your password'}
+          <h2 className="text-2xl font-bold text-gray-900">
+            {step === 'email' ? 'Welcome to Circl 👋' : 'Enter your password'}
           </h2>
           <p className="text-gray-500 mt-1">
-            {step === 'email' ? 'Enter your email to continue' : email}
+            {step === 'email' ? 'Find your people in Madrid.' : email}
           </p>
 
           {step === 'email' ? (
@@ -165,7 +165,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             disabled={loading}
             className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg mt-4 transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? 'Please wait…' : 'Continue'}
+            {loading ? 'Please wait…' : step === 'email' ? 'Continue →' : 'Let me in →'}
           </button>
         </div>
 

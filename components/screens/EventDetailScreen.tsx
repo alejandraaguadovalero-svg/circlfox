@@ -62,8 +62,16 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
             <p className="text-gray-600 leading-relaxed">{event.description}</p>
         </div>
 
+        <div className="mx-4 mt-4 bg-primary/5 border border-primary/15 rounded-2xl p-4 flex items-center gap-3">
+          <span className="text-2xl">🙋</span>
+          <div>
+            <p className="font-bold text-sm text-secondary">Coming alone? Most people are.</p>
+            <p className="text-xs text-gray-500 mt-0.5">Everyone here is looking to meet new people.</p>
+          </div>
+        </div>
+
         <div className="mt-6 border-t pt-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Attendees ({joinerIds.length})</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Who's going ({joinerIds.length})</h2>
             <div className="flex flex-wrap gap-4">
             {attendees.map(user => (
                 <button key={user.id} onClick={() => onSelectUser?.(user.id)} className="flex flex-col items-center w-16 text-center">
@@ -124,7 +132,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
             disabled={isFull}
             className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg disabled:bg-gray-400"
           >
-            {isFull ? 'Event is Full' : 'Join Group'}
+            {isFull ? 'This Circl is Full' : 'Join this Circl ✦'}
           </button>
         )}
       </div>
