@@ -8,11 +8,12 @@ function dbRowToEvent(row: any): Event {
   const organizer: User = {
     id: row.creator_id,
     name: p?.full_name ?? 'Unknown',
+    username: p?.username ?? '',
     age: p?.age ?? 0,
     city: p?.city ?? '',
     bio: p?.bio ?? '',
     interests: p?.interests ?? [],
-    avatarUrl: p?.avatar_url ?? `https://i.pravatar.cc/150?u=${row.creator_id}`,
+    avatarUrl: p?.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(p?.full_name ?? 'User')}&background=7B4FFF&color=fff`,
   };
   return {
     id: row.id,
@@ -80,6 +81,21 @@ export async function leaveEvent(eventId: string, userId: string): Promise<void>
 export async function deleteEvent(eventId: string): Promise<void> {
   const { error } = await supabase.from('events').delete().eq('id', eventId);
   if (error) console.error('deleteEvent:', error);
+}
+
+export async function fetchProfiles(userIds: string[]): Promise<User[]> {
+  if (userIds.length === 0) return [];
+  const { data } = await supabase.from('profiles').select('*').in('id', userIds);
+  return (data ?? []).map(p => ({
+    id: p.id,
+    name: p.full_name || p.name || '',
+    username: p.username ?? '',
+    age: p.age ?? 0,
+    city: p.city ?? 'Madrid',
+    bio: p.bio ?? '',
+    interests: p.interests ?? [],
+    avatarUrl: p.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'User')}&background=7B4FFF&color=fff`,
+  }));
 }
 
 export async function fetchMessages(eventId: string): Promise<Message[]> {

@@ -15,7 +15,7 @@ import LoginScreen from './components/screens/LoginScreen';
 import OpenScreen from './components/screens/OpenScreen';
 import ProfileSetupScreen from './components/screens/ProfileSetupScreen';
 import { supabase } from './lib/supabase';
-import { fetchEvents, createEvent, joinEvent, leaveEvent, deleteEvent, fetchMessages, sendMessage } from './lib/api';
+import { fetchEvents, createEvent, joinEvent, leaveEvent, deleteEvent, fetchMessages, sendMessage, fetchProfiles } from './lib/api';
 
 type View = 'home' | 'create' | 'profile' | 'eventDetail' | 'bookings' | 'activities' | 'chat' | 'chatDetail';
 type AppState = 'loading' | 'open' | 'login' | 'profile-setup' | 'main';
@@ -172,10 +172,22 @@ const App: React.FC = () => {
     }
   }, [currentUser]);
 
-  const navigateToEventDetail = (eventId: string) => {
+  const navigateToEventDetail = async (eventId: string) => {
     setViewBeforeDetail(currentView);
     setSelectedEventId(eventId);
     setCurrentView('eventDetail');
+    const event = events.find(e => e.id === eventId);
+    if (event) {
+      const unknownIds = event.attendeeIds.filter(id =>
+        id !== event.organizer.id && !users.find(u => u.id === id)
+      );
+      if (unknownIds.length > 0) {
+        const profiles = await fetchProfiles(unknownIds);
+        if (profiles.length > 0) {
+          setUsers(prev => [...prev.filter(u => !unknownIds.includes(u.id)), ...profiles]);
+        }
+      }
+    }
   };
 
   const navigateBack = () => {
