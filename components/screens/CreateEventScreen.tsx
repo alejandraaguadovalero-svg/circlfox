@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Category, Event } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { useLanguage, LANGUAGE_OPTIONS } from '../../lib/i18n';
+import { useLanguage, LANGUAGE_OPTIONS, POPULAR_LANGUAGES } from '../../lib/i18n';
 
 interface CreateEventScreenProps {
   onCreateEvent: (eventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => void;
@@ -47,6 +47,8 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const [eventType, setEventType] = useState('');
   const MAX_EVENT_LANGUAGES = 4;
   const [eventLanguages, setEventLanguages] = useState<string[]>([]);
+  const [langSearch, setLangSearch] = useState('');
+  const [showLangSearch, setShowLangSearch] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -283,30 +285,59 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           </div>
           <p className="text-xs text-gray-400 mb-3">{t.create_languages_sub}</p>
 
-          <div className="flex flex-wrap gap-2">
-            {LANGUAGE_OPTIONS.map(lang => {
+          {/* Popular quick-picks */}
+          <div className="flex flex-wrap gap-2 mb-2">
+            {LANGUAGE_OPTIONS.filter(l => POPULAR_LANGUAGES.includes(l.value)).map(lang => {
               const selected = eventLanguages.includes(lang.value);
               const atMax = eventLanguages.length >= MAX_EVENT_LANGUAGES && !selected;
               return (
-                <button
-                  key={lang.value}
-                  onClick={() => toggleLanguage(lang.value)}
-                  disabled={atMax}
+                <button key={lang.value} onClick={() => toggleLanguage(lang.value)} disabled={atMax}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                    selected
-                      ? 'bg-primary text-white'
-                      : atMax
-                      ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  <span>{lang.flag}</span>
-                  <span>{lang.native}</span>
+                    selected ? 'bg-primary text-white' : atMax ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600'
+                  }`}>
+                  <span>{lang.flag}</span><span>{lang.native}</span>
                   {selected && <span className="ml-0.5 opacity-70 text-xs">✓</span>}
                 </button>
               );
             })}
+            <button onClick={() => setShowLangSearch(v => !v)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              More
+            </button>
           </div>
+
+          {/* Searchable full list */}
+          {showLangSearch && (
+            <div className="border border-gray-200 rounded-xl overflow-hidden">
+              <input autoFocus type="text" value={langSearch} onChange={e => setLangSearch(e.target.value)}
+                placeholder="Search languages..."
+                className="w-full px-3 py-2.5 text-sm border-b border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary" />
+              <div className="max-h-44 overflow-y-auto">
+                {LANGUAGE_OPTIONS
+                  .filter(l => !POPULAR_LANGUAGES.includes(l.value))
+                  .filter(l => l.native.toLowerCase().includes(langSearch.toLowerCase()) || l.value.toLowerCase().includes(langSearch.toLowerCase()))
+                  .map(lang => {
+                    const selected = eventLanguages.includes(lang.value);
+                    const atMax = eventLanguages.length >= MAX_EVENT_LANGUAGES && !selected;
+                    return (
+                      <button key={lang.value} disabled={atMax}
+                        onMouseDown={() => { toggleLanguage(lang.value); setLangSearch(''); }}
+                        className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left transition-colors ${
+                          selected ? 'bg-primary/10 text-primary font-semibold' : atMax ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-50 text-gray-700'
+                        }`}>
+                        <span>{lang.flag}</span><span>{lang.native}</span>
+                        <span className="text-gray-400 text-xs ml-0.5">({lang.value})</span>
+                        {selected && <span className="ml-auto text-primary text-xs font-bold">✓</span>}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
           {eventLanguages.length >= MAX_EVENT_LANGUAGES && (
             <p className="text-xs text-gray-400 mt-2">Max {MAX_EVENT_LANGUAGES} languages. Tap a selected one to remove it.</p>
           )}
