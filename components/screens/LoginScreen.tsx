@@ -17,135 +17,146 @@ const EyeIcon: React.FC<{ show: boolean }> = ({ show }) => show ? (
 );
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState<'email' | 'password'>('email');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleContinue = async () => {
-    if (step === 'email') {
-      if (!email || !email.includes('@')) { setEmailError('Please enter a valid email.'); return; }
-      setEmailError('');
-      setStep('password');
-      return;
-    }
-
-    if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); return; }
+  const switchMode = (m: 'login' | 'signup') => {
+    setMode(m);
+    setEmailError('');
     setPasswordError('');
+  };
+
+  const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
+    Promise.race([promise, new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out. Check your connection.')), ms))]);
+
+  const validate = () => {
+    if (!email || !email.includes('@')) { setEmailError('Please enter a valid email.'); return false; }
+    if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); return false; }
+    return true;
+  };
+
+  const handleLogin = async () => {
+    if (!validate()) return;
     setLoading(true);
-
-    const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
-      Promise.race([promise, new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Request timed out. Check your connection.')), ms))]);
-
-    let signInError: any;
+    setEmailError(''); setPasswordError('');
     try {
-      const result = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 25000);
-      signInError = result.error;
+      const { error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 25000);
+      if (!error) { onLogin(); return; }
+      const msg = error.message.toLowerCase();
+      if (msg.includes('invalid') || msg.includes('credentials')) {
+        setPasswordError('Incorrect password. Try again or sign up.');
+      } else {
+        setPasswordError(error.message);
+      }
     } catch (e: any) {
       setPasswordError(e.message);
-      setLoading(false);
-      return;
     }
+    setLoading(false);
+  };
 
-    if (!signInError) { onLogin(); return; }
-
-    const isInvalidCreds = signInError.message.toLowerCase().includes('invalid') || signInError.message.toLowerCase().includes('credentials');
-
-    if (isInvalidCreds) {
-      let signUpData: any, signUpError: any;
-      try {
-        const result = await withTimeout(supabase.auth.signUp({ email, password }), 25000);
-        signUpData = result.data; signUpError = result.error;
-      } catch (e: any) {
-        setPasswordError(e.message); setLoading(false); return;
-      }
-      if (!signUpError && signUpData?.user) {
-        await supabase.from('profiles').upsert({ id: signUpData.user.id, full_name: email.split('@')[0] }, { onConflict: 'id' });
+  const handleSignUp = async () => {
+    if (!validate()) return;
+    setLoading(true);
+    setEmailError(''); setPasswordError('');
+    try {
+      const { data, error } = await withTimeout(supabase.auth.signUp({ email, password }), 25000);
+      if (!error && data?.user) {
+        await supabase.from('profiles').upsert(
+          { id: data.user.id, full_name: email.split('@')[0] },
+          { onConflict: 'id' }
+        );
         onLogin();
         return;
       }
-      if (signUpError.message.toLowerCase().includes('already registered') || signUpError.message.toLowerCase().includes('already exists')) {
-        setPasswordError('Incorrect password. Please try again.');
-      } else {
-        setPasswordError(signUpError.message);
+      if (error) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes('already registered') || msg.includes('already exists')) {
+          setEmailError('An account with this email already exists. Log in instead.');
+        } else {
+          setEmailError(error.message);
+        }
       }
-      setLoading(false);
-      return;
+    } catch (e: any) {
+      setEmailError(e.message);
     }
-
-    setPasswordError(signInError.message);
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-cream">
-
-      <header className="px-6 pt-12 pb-2 flex-shrink-0 flex items-center">
-        {step === 'password' ? (
-          <button onClick={() => { setStep('email'); setPasswordError(''); }}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm border border-black/5">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        ) : <div className="w-9" />}
-      </header>
+      <header className="px-6 pt-12 pb-2 flex-shrink-0" />
 
       <main className="flex-grow flex flex-col justify-center px-6 -mt-8">
         <div className="mb-8 text-center">
           <img src="/logo.png" alt="Kruh" className="mx-auto object-contain" style={{ width: '60vw', maxWidth: '240px' }} />
         </div>
 
-        <h2 className="text-2xl font-black text-gray-900 mb-1">
-          {step === 'email' ? 'Welcome back' : 'Enter password'}
-        </h2>
-        <p className="text-gray-400 text-sm mb-6">
-          {step === 'email' ? 'New here? We\'ll create your account automatically.' : email}
-        </p>
+        {/* Toggle */}
+        <div className="flex bg-white rounded-2xl p-1 mb-6 shadow-sm border border-black/5">
+          <button
+            onClick={() => switchMode('login')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${mode === 'login' ? 'bg-primary text-white shadow-sm' : 'text-gray-400'}`}
+          >
+            Log in
+          </button>
+          <button
+            onClick={() => switchMode('signup')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${mode === 'signup' ? 'bg-primary text-white shadow-sm' : 'text-gray-400'}`}
+          >
+            Sign up
+          </button>
+        </div>
 
-        {step === 'email' ? (
-          <>
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 mb-1">
+            {mode === 'login' ? 'Welcome back' : 'Create your account'}
+          </h2>
+          <p className="text-gray-400 text-sm mb-5">
+            {mode === 'login' ? 'Good to see you again.' : 'Join Kruh and find your people in Madrid.'}
+          </p>
+
+          {/* Email */}
+          <input
+            type="email"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setEmailError(''); }}
+            onKeyDown={e => e.key === 'Enter' && (mode === 'login' ? handleLogin() : handleSignUp())}
+            placeholder="your@email.com"
+            className={`w-full px-4 py-4 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${emailError ? 'border-red-300' : 'border-transparent'}`}
+          />
+          {emailError && <p className="text-red-500 text-xs mt-1.5 mb-2">{emailError}</p>}
+
+          {/* Password */}
+          <div className="relative mt-3">
             <input
-              type="email"
-              value={email}
-              onChange={e => { setEmail(e.target.value); setEmailError(''); }}
-              onKeyDown={e => e.key === 'Enter' && handleContinue()}
-              placeholder="your@email.com"
-              className={`w-full px-4 py-4 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${emailError ? 'border-red-300' : 'border-transparent'}`}
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
+              onKeyDown={e => e.key === 'Enter' && (mode === 'login' ? handleLogin() : handleSignUp())}
+              placeholder={mode === 'signup' ? 'Create a password (min 6 chars)' : 'Password'}
+              className={`w-full px-4 py-4 pr-12 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${passwordError ? 'border-red-300' : 'border-transparent'}`}
             />
-            {emailError && <p className="text-red-500 text-xs mt-2">{emailError}</p>}
-          </>
-        ) : (
-          <div>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
-                onKeyDown={e => e.key === 'Enter' && handleContinue()}
-                placeholder="Password (min 6 chars)"
-                autoFocus
-                className={`w-full px-4 py-4 pr-12 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${passwordError ? 'border-red-300' : 'border-transparent'}`}
-              />
-              <button type="button" onClick={() => setShowPassword(v => !v)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <EyeIcon show={showPassword} />
-              </button>
-            </div>
-            {passwordError && <p className="text-red-500 text-xs mt-2">{passwordError}</p>}
+            <button type="button" onClick={() => setShowPassword(v => !v)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <EyeIcon show={showPassword} />
+            </button>
           </div>
-        )}
+          {passwordError && <p className="text-red-500 text-xs mt-1.5">{passwordError}</p>}
 
-        <button
-          onClick={handleContinue}
-          disabled={loading}
-          className="w-full bg-primary text-white font-bold py-4 rounded-2xl mt-4 active:scale-95 transition-transform duration-150 disabled:opacity-50"
-        >
-          {loading ? 'Please wait…' : step === 'email' ? 'Continue' : 'Let me in'}
-        </button>
+          <button
+            onClick={mode === 'login' ? handleLogin : handleSignUp}
+            disabled={loading}
+            className="w-full bg-primary text-white font-bold py-4 rounded-2xl mt-4 active:scale-95 transition-transform duration-150 disabled:opacity-50"
+          >
+            {loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}
+          </button>
+        </div>
       </main>
 
       <footer className="flex-shrink-0 text-center px-6 pb-10">
