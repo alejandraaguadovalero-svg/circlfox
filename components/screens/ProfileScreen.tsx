@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Event } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { useLanguage, LANGUAGE_OPTIONS } from '../../lib/i18n';
+import { useLanguage, LANGUAGE_OPTIONS, Lang } from '../../lib/i18n';
 
 interface ProfileScreenProps {
   currentUser: User;
@@ -33,7 +33,7 @@ const SettingsRow: React.FC<{ label: string; enabled: boolean; onChange: () => v
 );
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLogout, onUpdateUser }) => {
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl);
@@ -269,6 +269,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
             <SettingsRow label={t.settings_event_reminders} enabled={settings.eventNotifications} onChange={() => toggle('eventNotifications')} />
             <SettingsRow label={t.settings_messages} enabled={settings.messageNotifications} onChange={() => toggle('messageNotifications')} />
             <SettingsRow label={t.settings_activity} enabled={settings.activityNotifications} onChange={() => toggle('activityNotifications')} />
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">Language / Idioma</p>
+            <div className="flex gap-2 mb-4">
+              {(['en', 'es'] as Lang[]).map(l => (
+                <button key={l} onClick={() => setLang(l)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-colors ${lang === l ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-400'}`}>
+                  {l === 'en' ? '🇬🇧 English' : '🇪🇸 Español'}
+                </button>
+              ))}
+            </div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">{t.settings_privacy}</p>
             <SettingsRow label={t.settings_location} enabled={settings.showLocation} onChange={() => toggle('showLocation')} />
             <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg">{t.settings_done}</button>

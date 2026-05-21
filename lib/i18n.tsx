@@ -498,19 +498,28 @@ const es: Translations = {
 const translations: Record<Lang, Translations> = { en, es };
 
 export function detectLanguage(): Lang {
+  const saved = localStorage.getItem('kruh_lang') as Lang | null;
+  if (saved === 'en' || saved === 'es') return saved;
   const lang = (navigator.language || 'en').toLowerCase();
   return lang.startsWith('es') ? 'es' : 'en';
 }
 
-const LanguageContext = createContext<{ t: Translations; lang: Lang }>({
+const LanguageContext = createContext<{ t: Translations; lang: Lang; setLang: (l: Lang) => void }>({
   t: translations.en,
   lang: 'en',
+  setLang: () => {},
 });
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const lang = detectLanguage();
+  const [lang, setLangState] = React.useState<Lang>(detectLanguage);
+
+  const setLang = (l: Lang) => {
+    localStorage.setItem('kruh_lang', l);
+    setLangState(l);
+  };
+
   return (
-    <LanguageContext.Provider value={{ t: translations[lang], lang }}>
+    <LanguageContext.Provider value={{ t: translations[lang], lang, setLang }}>
       {children}
     </LanguageContext.Provider>
   );
