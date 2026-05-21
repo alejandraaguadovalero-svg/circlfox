@@ -36,24 +36,6 @@ export enum Category {
   OTHER = 'Other',
 }
 
-export enum ActivityType {
-  FOLLOW = 'follow',
-  NEW_EVENT = 'new_event',
-  REPLY = 'reply',
-  IMAGE_SHARE = 'image_share',
-  SAVE = 'save',
-  LIKE = 'like',
-}
-
-export interface Activity {
-  id: number;
-  type: ActivityType;
-  user: User;
-  timestamp: string;
-  details: string;
-  relatedImageUrl?: string;
-  relatedEvent?: Event;
-}
 
 export interface Message {
   id: string;
