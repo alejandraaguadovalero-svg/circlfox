@@ -111,7 +111,7 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
   }, [events]);
 
   return (
-    <div className="bg-gray-50 h-full">
+    <div className="bg-gray-50 min-h-full">
       <header className="sticky top-0 bg-white z-10 px-4 py-4 border-b border-gray-200 flex justify-between items-center">
         <div />
         <div className="flex items-center gap-2">

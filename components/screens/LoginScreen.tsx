@@ -114,7 +114,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
   };
 
   return (
-    <div className="h-full flex flex-col font-sans bg-cream">
+    <div className="min-h-full flex flex-col font-sans bg-cream">
       <header className="px-6 pt-12 pb-2 flex-shrink-0" />
 
       <main className="flex-grow flex flex-col justify-center px-6 -mt-8">

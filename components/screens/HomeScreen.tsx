@@ -64,7 +64,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, 
   const tonightCount = events.filter(e => new Date(e.date).toDateString() === todayStr && e.organizer.id !== currentUser.id && new Date(e.date) >= now).length;
 
   return (
-    <div className="bg-cream h-full">
+    <div className="bg-cream min-h-full">
       <header className="sticky top-0 bg-cream z-10 px-4 pt-4 border-b border-black/5">
         <div className="flex justify-between items-center mb-3">
           <div>

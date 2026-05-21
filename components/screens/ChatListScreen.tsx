@@ -31,7 +31,7 @@ const ChatListScreen: React.FC<ChatListScreenProps> = ({ events, currentUser, ev
   );
 
   return (
-    <div className="bg-white h-full">
+    <div className="bg-white min-h-full">
       <header className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200">
         <h1 className="text-xl font-bold text-secondary">{t.chat_title}</h1>
       </header>

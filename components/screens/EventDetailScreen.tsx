@@ -36,7 +36,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
   const timeDisplay = formattedEndTime ? `${formattedTime} – ${formattedEndTime}` : formattedTime;
 
   return (
-    <div className="bg-white h-full pb-24">
+    <div className="bg-white min-h-full pb-24">
       <div className="relative">
         {event.imageUrl ? (
           <img src={event.imageUrl} alt={event.title} className="w-full h-60 object-cover" />
