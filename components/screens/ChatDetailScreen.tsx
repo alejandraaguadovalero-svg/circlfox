@@ -99,7 +99,7 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
                   <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                     {!isMe && (
                       <img
-                        src={sender?.avatarUrl ?? `https://i.pravatar.cc/150?u=user${msg.senderId}`}
+                        src={sender?.avatarUrl ?? `https://ui-avatars.com/api/?name=U&background=7B4FFF&color=fff`}
                         alt={sender?.name}
                         className="w-8 h-8 rounded-full flex-shrink-0 object-cover"
                       />

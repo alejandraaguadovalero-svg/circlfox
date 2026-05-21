@@ -1,5 +1,4 @@
 import React from 'react';
-import { User, Activity, ActivityType } from './types';
 
 export const CirclFoxIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,20 +23,3 @@ export const CirclFoxIcon: React.FC<{ className?: string }> = ({ className }) =>
   </svg>
 );
 
-export const MOCK_USERS: User[] = [
-  { id: 'mock-1', name: 'Alex López', username: 'alexlopez', age: 22, city: 'Madrid', bio: 'Student, love hiking and trying new food spots!', interests: ['Running', 'Football', 'Coffee', 'Clubbing'], avatarUrl: 'https://i.pravatar.cc/150?u=alex' },
-  { id: 'mock-2', name: 'Mia Ruiz', username: 'miaruiz', age: 25, city: 'Madrid', bio: 'Young professional in tech. Always down for a board game night.', interests: ['Board Games', 'Music', 'Hiking'], avatarUrl: 'https://i.pravatar.cc/150?u=mia' },
-  { id: 'mock-3', name: 'Sara Martín', username: 'starryxkes23', age: 19, city: 'Madrid', bio: 'Let\'s grab a coffee and talk about travel.', interests: ['Travel', 'Coffee', 'Art'], avatarUrl: 'https://i.pravatar.cc/150?u=starryxkes23' },
-  { id: 'mock-4', name: 'Carlos Vega', username: 'carlosvega', age: 24, city: 'Madrid', bio: 'Art student who loves museum trips and outdoor painting.', interests: ['Art', 'Photography', 'Outdoors'], avatarUrl: 'https://i.pravatar.cc/150?u=netuibonomad' },
-  { id: 'mock-5', name: 'Luna García', username: 'lunavoyager', age: 21, city: 'Madrid', bio: 'Loves photography and exploring hidden gems in the city.', interests: ['Photography', 'Hiking', 'Gaming'], avatarUrl: 'https://i.pravatar.cc/150?u=lunavoyager' },
-  { id: 'mock-6', name: 'Diego Sanz', username: 'diegosanz', age: 26, city: 'Madrid', bio: 'Into urban exploration and street art.', interests: ['Art', 'Music', 'Running'], avatarUrl: 'https://i.pravatar.cc/150?u=shadowxplorer' },
-];
-
-export const MOCK_ACTIVITIES: Activity[] = [
-    { id: 1, type: ActivityType.FOLLOW, user: MOCK_USERS[2], timestamp: "3d", details: "started following you"},
-    { id: 2, type: ActivityType.IMAGE_SHARE, user: MOCK_USERS[3], timestamp: "1d", details: "liked the image you shared to Coffee 25/02/25", relatedImageUrl: 'https://images.unsplash.com/photo-1511920183276-5742f4b5b5ba?q=80&w=1974&auto=format&fit=crop'},
-    { id: 3, type: ActivityType.NEW_EVENT, user: MOCK_USERS[1], timestamp: "2d", details: "New Event" },
-    { id: 4, type: ActivityType.SAVE, user: MOCK_USERS[4], timestamp: "3d", details: "saves the image you shared to Coffee 25/02/25", relatedImageUrl: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=1974&auto=format&fit=crop' },
-    { id: 5, type: ActivityType.REPLY, user: MOCK_USERS[4], timestamp: "4d", details: "Replied to the image: Should we meet again tmr?", relatedImageUrl: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=1974&auto=format&fit=crop' },
-    { id: 6, type: ActivityType.LIKE, user: MOCK_USERS[3], timestamp: "5d", details: "Replied to the image: This is so adorable!!!", relatedImageUrl: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1974&auto=format&fit=crop' },
-];

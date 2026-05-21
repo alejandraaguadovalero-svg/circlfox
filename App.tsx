@@ -53,7 +53,7 @@ const App: React.FC = () => {
       city: profile.city ?? '',
       bio: profile.bio ?? '',
       interests: profile.interests ?? [],
-      avatarUrl: profile.avatar_url ?? `https://i.pravatar.cc/150?u=${userId}`,
+      avatarUrl: profile.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=7B4FFF&color=fff`,
     };
     setCurrentUser(user);
     setUsers(prev => [...prev.filter(u => u.id !== userId), user]);
@@ -156,11 +156,13 @@ const App: React.FC = () => {
 
   const handleLeaveEvent = useCallback(async (eventId: string) => {
     if (!currentUser) return;
+    const event = events.find(e => e.id === eventId);
+    if (event?.organizer.id === currentUser.id) return;
     setEvents(prev => prev.map(e =>
       e.id === eventId ? { ...e, attendeeIds: e.attendeeIds.filter(id => id !== currentUser.id) } : e
     ));
     await leaveEvent(eventId, currentUser.id);
-  }, [currentUser]);
+  }, [currentUser, events]);
 
   const handleDeleteEvent = useCallback(async (eventId: string) => {
     setEvents(prev => prev.filter(e => e.id !== eventId));
