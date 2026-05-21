@@ -6,7 +6,7 @@ interface OpenScreenProps {
 
 const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
   return (
-    <div className="min-h-screen flex flex-col px-8 font-sans" style={{ background: '#0F0F0F' }}>
+    <div className="min-h-screen flex flex-col px-8 font-sans bg-primary">
 
       {/* Top bar */}
       <div className="pt-16 flex justify-center">
@@ -34,11 +34,11 @@ const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
       <div className="pb-14 flex flex-col items-center gap-3">
         <button
           onClick={onEnter}
-          className="w-full max-w-sm bg-primary text-white font-bold py-4 px-6 rounded-2xl text-base active:scale-95 transition-transform duration-150"
+          className="w-full max-w-sm bg-white text-primary font-bold py-4 px-6 rounded-2xl text-base active:scale-95 transition-transform duration-150"
         >
           Get started ✦
         </button>
-        <p className="text-white/30 text-xs">Free · No ads · Just people</p>
+        <p className="text-white/50 text-xs">Free · No ads · Just people</p>
       </div>
     </div>
   );
