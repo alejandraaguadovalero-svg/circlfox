@@ -20,12 +20,13 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
 interface EventCardProps {
   event: Event;
   currentUser: User;
+  allUsers: User[];
   onSelectEvent: (eventId: string) => void;
   onJoin: (eventId: string) => void;
   onLeave: (eventId: string) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent, onJoin, onLeave }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onSelectEvent, onJoin, onLeave }) => {
   const isOrganizer = event.organizer.id === currentUser.id;
   const isAttending = event.attendeeIds.includes(currentUser.id);
   const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
@@ -131,15 +132,19 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, onSelectEvent
           <div className="flex items-center gap-2">
             {joinerIds.length > 0 && (
               <div className="flex -space-x-2">
-                {joinerIds.slice(0, 3).map((id, i) => (
-                  <img
-                    key={id}
-                    src={`https://i.pravatar.cc/32?u=${id}`}
-                    alt=""
-                    className="w-6 h-6 rounded-full border-2 border-white object-cover"
-                    style={{ zIndex: 3 - i }}
-                  />
-                ))}
+                {joinerIds.slice(0, 3).map((id, i) => {
+                  const user = id === event.organizer.id ? event.organizer : allUsers.find(u => u.id === id);
+                  const avatarSrc = user?.avatarUrl ?? `https://ui-avatars.com/api/?name=U&background=7B4FFF&color=fff&size=32`;
+                  return (
+                    <img
+                      key={id}
+                      src={avatarSrc}
+                      alt={user?.name ?? ''}
+                      className="w-6 h-6 rounded-full border-2 border-white object-cover"
+                      style={{ zIndex: 3 - i }}
+                    />
+                  );
+                })}
               </div>
             )}
             <p className="text-sm font-semibold text-gray-500">

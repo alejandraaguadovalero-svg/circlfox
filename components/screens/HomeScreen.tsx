@@ -5,6 +5,7 @@ import EventCard from '../EventCard';
 interface HomeScreenProps {
   events: Event[];
   currentUser: User;
+  allUsers: User[];
   onSelectEvent: (eventId: string) => void;
   onNavigateToCreate: () => void;
   onNavigateToMap: () => void;
@@ -27,7 +28,7 @@ const MOOD_FILTERS: { id: MoodFilter; label: string; emoji: string }[] = [
   { id: Category.OTHER, label: 'Other', emoji: '✨' },
 ];
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEvent, onNavigateToCreate, onNavigateToMap, onJoin, onLeave }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, onSelectEvent, onNavigateToCreate, onNavigateToMap, onJoin, onLeave }) => {
   const [activeTab, setActiveTab] = useState<Tab>('foryou');
   const now = new Date();
   const todayStr = now.toDateString();
@@ -125,7 +126,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, onSelectEv
         {visibleEvents.length > 0 ? (
           <div className="space-y-4">
             {visibleEvents.map(event => (
-              <EventCard key={event.id} event={event} currentUser={currentUser} onSelectEvent={onSelectEvent} onJoin={onJoin} onLeave={onLeave} />
+              <EventCard key={event.id} event={event} currentUser={currentUser} allUsers={allUsers} onSelectEvent={onSelectEvent} onJoin={onJoin} onLeave={onLeave} />
             ))}
           </div>
         ) : (

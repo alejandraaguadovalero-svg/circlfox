@@ -270,7 +270,7 @@ const App: React.FC = () => {
 
     switch (currentView) {
       case 'home':
-        return <HomeScreen events={events} currentUser={currentUser} onSelectEvent={navigateToEventDetail} onNavigateToCreate={() => setCurrentView('create')} onNavigateToMap={() => setCurrentView('bookings')} onJoin={handleJoinEvent} onLeave={handleLeaveEvent} />;
+        return <HomeScreen events={events} currentUser={currentUser} allUsers={users} onSelectEvent={navigateToEventDetail} onNavigateToCreate={() => setCurrentView('create')} onNavigateToMap={() => setCurrentView('bookings')} onJoin={handleJoinEvent} onLeave={handleLeaveEvent} />;
       case 'create':
         return <CreateEventScreen onCreateEvent={handleCreateEvent} onCancel={() => setCurrentView('home')} />;
       case 'profile':
@@ -282,7 +282,7 @@ const App: React.FC = () => {
       case 'chat':
         return <ChatListScreen events={events} currentUser={currentUser} eventMessages={eventMessages} onSelectChat={navigateToChatDetail} />;
       default:
-        return <HomeScreen events={events} currentUser={currentUser} onSelectEvent={navigateToEventDetail} onNavigateToCreate={() => setCurrentView('create')} onNavigateToMap={() => setCurrentView('bookings')} onJoin={handleJoinEvent} onLeave={handleLeaveEvent} />;
+        return <HomeScreen events={events} currentUser={currentUser} allUsers={users} onSelectEvent={navigateToEventDetail} onNavigateToCreate={() => setCurrentView('create')} onNavigateToMap={() => setCurrentView('bookings')} onJoin={handleJoinEvent} onLeave={handleLeaveEvent} />;
     }
   };
 
