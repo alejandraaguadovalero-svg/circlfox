@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Category, Event } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { useLanguage, LANGUAGE_OPTIONS, POPULAR_LANGUAGES } from '../../lib/i18n';
+import { useToast } from '../Toast';
 
 interface CreateEventScreenProps {
   onCreateEvent: (eventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => void;
@@ -27,6 +28,7 @@ interface LocationSuggestion {
 
 const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, onCancel }) => {
   const { t } = useLanguage();
+  const { show: showToast, node: toastNode } = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<Category>(Category.SPORTS);
@@ -86,7 +88,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { data, error } = await supabase.storage.from('event-images').upload(path, file);
     if (error || !data) {
-      alert(`Upload failed: ${error?.message ?? 'unknown error'}.`);
+      showToast(error?.message ?? 'Upload failed', 'error');
       setUploadingImage(false);
       return;
     }
@@ -138,6 +140,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
 
   return (
     <div className="flex flex-col bg-white min-h-screen">
+      {toastNode}
       <header className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200 flex items-center">
         <button onClick={onCancel}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

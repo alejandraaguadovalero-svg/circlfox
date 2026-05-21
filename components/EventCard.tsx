@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Event, User } from '../types';
 import { useLanguage, LANGUAGE_OPTIONS } from '../lib/i18n';
+import { useToast } from './Toast';
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
@@ -29,6 +30,7 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onSelectEvent, onJoin, onLeave }) => {
   const { t } = useLanguage();
+  const { show: showToast, node: toastNode } = useToast();
   const isOrganizer = event.organizer.id === currentUser.id;
   const isAttending = event.attendeeIds.includes(currentUser.id);
   const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
@@ -52,13 +54,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
     e.stopPropagation();
     setShowMenu(false);
     if (navigator.share) navigator.share({ title: event.title, text: event.description, url: window.location.href });
-    else { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); }
+    else { navigator.clipboard.writeText(window.location.href); showToast(t.card_link_copied, 'success'); }
   };
 
   const handleReport = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMenu(false);
-    alert(t.card_reported);
+    showToast(t.card_reported, 'success');
   };
 
   const langFlags = (event.languages ?? [])
@@ -67,6 +69,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
 
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-black/5 mb-4" onClick={() => onSelectEvent(event.id)}>
+      {toastNode}
       {/* Image */}
       <div className="relative">
         {event.imageUrl ? (

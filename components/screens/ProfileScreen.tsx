@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Event } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { useLanguage } from '../../lib/i18n';
+import { useLanguage, LANGUAGE_OPTIONS } from '../../lib/i18n';
 
 interface ProfileScreenProps {
   currentUser: User;
@@ -142,6 +142,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
             <p className="text-gray-400 text-xs mt-1 font-medium">{t.profile_nationality}: {currentUser.nationality}</p>
           )}
           {currentUser.bio && <p className="text-gray-500 mt-1.5 text-sm max-w-xs">{currentUser.bio}</p>}
+          {(currentUser.spokenLanguages ?? []).length > 0 && (
+            <div className="flex flex-wrap gap-1.5 justify-center mt-2">
+              {(currentUser.spokenLanguages ?? []).map(v => {
+                const l = LANGUAGE_OPTIONS.find(o => o.value === v);
+                if (!l) return null;
+                return (
+                  <span key={v} className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
+                    <span>{l.flag}</span><span>{l.native}</span>
+                  </span>
+                );
+              })}
+            </div>
+          )}
           <button onClick={() => { setEditUsername(currentUser.username); setEditBio(currentUser.bio); setEditInterests(currentUser.interests); setEditError(''); setShowEditProfile(true); }}
             className="mt-3 text-sm font-semibold text-primary border border-primary/30 px-5 py-1.5 rounded-full bg-primary/5">
             {t.profile_edit}
