@@ -261,7 +261,7 @@ const App: React.FC = () => {
 
   if (appState === 'loading') {
     return (
-      <div className="max-w-lg mx-auto min-h-screen bg-primary flex items-center justify-center">
+      <div className="app-shell bg-primary flex items-center justify-center">
         <img src="/logo.png" alt="Kruh" className="w-32 h-32 object-contain animate-pulse" />
       </div>
     );
@@ -341,8 +341,8 @@ const App: React.FC = () => {
 
   return (
     <LanguageProvider>
-    <div className="max-w-lg mx-auto bg-cream min-h-screen flex flex-col font-sans">
-      <main className="flex-grow">
+    <div className="app-shell bg-cream font-sans">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden" style={{ paddingBottom: currentView !== 'chatDetail' && currentView !== 'create' ? 'calc(64px + env(safe-area-inset-bottom))' : '0' }}>
         {eventsLoading && events.length === 0 ? (
           <div className="flex items-center justify-center h-64">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />

@@ -108,7 +108,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
     .slice(0, 3);
 
   return (
-    <div className="bg-cream min-h-screen pb-24">
+    <div className="bg-cream h-full pb-24">
       {/* Gradient banner + gear */}
       <div className="relative">
         <div className="h-36 w-full bg-primary" />

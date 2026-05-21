@@ -131,7 +131,7 @@ const ProfileSetupScreen: React.FC<ProfileSetupScreenProps> = ({ userId, emailHi
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="h-full bg-white flex flex-col font-sans">
       <header className="px-6 pt-10 pb-4">
         <img src="/logo.png" alt="Kruh" className="w-12 h-12 object-contain mb-6" />
         <h1 className="text-2xl font-bold text-gray-900">{t.setup_title}</h1>

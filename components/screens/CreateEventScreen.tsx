@@ -139,7 +139,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   };
 
   return (
-    <div className="flex flex-col bg-white min-h-screen">
+    <div className="flex flex-col bg-white h-full">
       {toastNode}
       <header className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200 flex items-center">
         <button onClick={onCancel}>

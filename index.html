@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Kruh - Local Social Events</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,9 +30,37 @@
       }
     </script>
   <style>
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; width: 100%; margin: 0; padding: 0; }
+    body {
+      overflow: hidden;
+      -webkit-text-size-adjust: 100%;
+      /* Prevent iOS rubber-band scroll on body */
+      overscroll-behavior: none;
+    }
+    #root {
+      height: 100dvh; /* dynamic viewport height — respects keyboard */
+      overflow: hidden;
+    }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    button, a { touch-action: manipulation; }
+    button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    /* Safe area padding for notch / home bar */
+    .safe-top    { padding-top:    env(safe-area-inset-top); }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    .safe-left   { padding-left:   env(safe-area-inset-left); }
+    .safe-right  { padding-right:  env(safe-area-inset-right); }
+    /* App shell fills full screen */
+    .app-shell {
+      height: 100dvh;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
   </style>
   <script type="importmap">
 {

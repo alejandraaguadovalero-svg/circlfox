@@ -66,10 +66,6 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Kruh uses your location to show events happening near you.</string>
 
-	<!-- Face ID — future biometric login support -->
-	<key>NSFaceIDUsageDescription</key>
-	<string>Use Face ID to sign into Kruh quickly and securely.</string>
-
 	<!-- Required for App Store: privacy manifest pointer -->
 	<key>NSPrivacyManifest</key>
 	<string>PrivacyInfo</string>

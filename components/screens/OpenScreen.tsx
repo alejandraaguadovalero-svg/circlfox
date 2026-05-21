@@ -8,7 +8,7 @@ interface OpenScreenProps {
 const OpenScreen: React.FC<OpenScreenProps> = ({ onEnter }) => {
   const { t } = useLanguage();
   return (
-    <div className="min-h-screen flex flex-col px-8 font-sans bg-primary">
+    <div className="h-full flex flex-col px-8 font-sans bg-primary">
       <div className="pt-16 flex justify-center">
         <div className="w-8 h-1 rounded-full bg-primary opacity-80" />
       </div>
