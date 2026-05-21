@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useLanguage } from '../../lib/i18n';
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -32,6 +33,7 @@ const LegalModal: React.FC<{ title: string; onClose: () => void; children: React
 );
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+  const { t, lang } = useLanguage();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,8 +55,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       setTimeout(() => reject(new Error('Request timed out. Check your connection.')), ms))]);
 
   const validate = () => {
-    if (!email || !email.includes('@')) { setEmailError('Please enter a valid email.'); return false; }
-    if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); return false; }
+    if (!email || !email.includes('@')) { setEmailError(t.email_invalid); return false; }
+    if (password.length < 6) { setPasswordError(t.password_short); return false; }
     return true;
   };
 
@@ -67,7 +69,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       if (!error) { onLogin(); return; }
       const msg = error.message.toLowerCase();
       if (msg.includes('invalid') || msg.includes('credentials')) {
-        setPasswordError('Incorrect password. Try again or sign up.');
+        setPasswordError(t.password_wrong);
       } else {
         setPasswordError(error.message);
       }
@@ -94,7 +96,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       if (error) {
         const msg = error.message.toLowerCase();
         if (msg.includes('already registered') || msg.includes('already exists')) {
-          setEmailError('An account with this email already exists. Log in instead.');
+          setEmailError(t.account_exists);
         } else {
           setEmailError(error.message);
         }
@@ -120,22 +122,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             onClick={() => switchMode('login')}
             className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${mode === 'login' ? 'bg-primary text-white shadow-sm' : 'text-gray-400'}`}
           >
-            Log in
+            {t.login_tab}
           </button>
           <button
             onClick={() => switchMode('signup')}
             className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${mode === 'signup' ? 'bg-primary text-white shadow-sm' : 'text-gray-400'}`}
           >
-            Sign up
+            {t.signup_tab}
           </button>
         </div>
 
         <div>
           <h2 className="text-2xl font-black text-gray-900 mb-1">
-            {mode === 'login' ? 'Welcome back' : 'Create your account'}
+            {mode === 'login' ? t.login_title : t.signup_title}
           </h2>
           <p className="text-gray-400 text-sm mb-5">
-            {mode === 'login' ? 'Good to see you again.' : 'Join Kruh and find your people in Madrid.'}
+            {mode === 'login' ? t.login_sub : t.signup_sub}
           </p>
 
           {/* Email */}
@@ -144,7 +146,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             value={email}
             onChange={e => { setEmail(e.target.value); setEmailError(''); }}
             onKeyDown={e => e.key === 'Enter' && (mode === 'login' ? handleLogin() : handleSignUp())}
-            placeholder="your@email.com"
+            placeholder={t.email_placeholder}
             className={`w-full px-4 py-4 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${emailError ? 'border-red-300' : 'border-transparent'}`}
           />
           {emailError && <p className="text-red-500 text-xs mt-1.5 mb-2">{emailError}</p>}
@@ -156,7 +158,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               value={password}
               onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
               onKeyDown={e => e.key === 'Enter' && (mode === 'login' ? handleLogin() : handleSignUp())}
-              placeholder={mode === 'signup' ? 'Create a password (min 6 chars)' : 'Password'}
+              placeholder={mode === 'signup' ? t.password_new_placeholder : t.password_placeholder}
               className={`w-full px-4 py-4 pr-12 border-2 rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors ${passwordError ? 'border-red-300' : 'border-transparent'}`}
             />
             <button type="button" onClick={() => setShowPassword(v => !v)}
@@ -171,17 +173,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             disabled={loading}
             className="w-full bg-primary text-white font-bold py-4 rounded-2xl mt-4 active:scale-95 transition-transform duration-150 disabled:opacity-50"
           >
-            {loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}
+            {loading ? t.loading : mode === 'login' ? t.login_btn : t.signup_btn}
           </button>
         </div>
       </main>
 
       <footer className="flex-shrink-0 text-center px-6 pb-10">
         <p className="text-xs text-gray-400">
-          By continuing you agree to our{' '}
-          <button onClick={() => setShowTerms(true)} className="text-gray-500 underline underline-offset-2">Terms</button>
-          {' '}and{' '}
-          <button onClick={() => setShowPrivacy(true)} className="text-gray-500 underline underline-offset-2">Privacy Policy</button>
+          {t.terms_agree}{' '}
+          <button onClick={() => setShowTerms(true)} className="text-gray-500 underline underline-offset-2">{t.terms_link}</button>
+          {' '}{lang === 'es' ? 'y' : 'and'}{' '}
+          <button onClick={() => setShowPrivacy(true)} className="text-gray-500 underline underline-offset-2">{t.privacy_link}</button>
         </p>
       </footer>
 

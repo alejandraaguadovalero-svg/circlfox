@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Event, User } from '../../types';
 import { MapPinIcon, UsersIcon, CalendarIcon } from '../icons';
+import { useLanguage, LANGUAGE_OPTIONS } from '../../lib/i18n';
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
@@ -20,6 +21,7 @@ interface EventDetailScreenProps {
 }
 
 const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, currentUser, onBack, onJoin, onLeave, onDelete, onGoToChat, onSelectUser }) => {
+  const { t } = useLanguage();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
   const attendees = joinerIds.map(id => allUsers.find(u => u.id === id)).filter(Boolean) as User[];
@@ -59,21 +61,39 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
             <InfoRow icon={<UsersIcon className="w-6 h-6 text-primary" />} text={`${joinerIds.length} / ${event.maxParticipants} going`} />
         </div>
 
+        {(event.languages ?? []).length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{t.detail_languages}</p>
+            <div className="flex flex-wrap gap-2">
+              {(event.languages ?? []).map(lang => {
+                const opt = LANGUAGE_OPTIONS.find(o => o.value === lang);
+                if (!opt) return null;
+                return (
+                  <span key={lang} className="flex items-center gap-1 bg-gray-100 text-gray-700 text-sm font-semibold px-3 py-1 rounded-full">
+                    <span>{opt.flag}</span>
+                    <span>{opt.native}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 border-t pt-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Description</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t.detail_description}</h2>
             <p className="text-gray-600 leading-relaxed">{event.description}</p>
         </div>
 
         <div className="mx-4 mt-4 bg-primary/5 border border-primary/15 rounded-2xl p-4 flex items-center gap-3">
           <span className="text-2xl">🙋</span>
           <div>
-            <p className="font-bold text-sm text-secondary">Coming alone? Most people are.</p>
-            <p className="text-xs text-gray-500 mt-0.5">Everyone here is looking to meet new people.</p>
+            <p className="font-bold text-sm text-secondary">{t.detail_alone_title}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t.detail_alone_sub}</p>
           </div>
         </div>
 
         <div className="mt-6 border-t pt-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Who's going ({joinerIds.length})</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t.detail_whos_going} ({joinerIds.length})</h2>
             <div className="flex flex-wrap gap-4">
             {attendees.map(user => (
                 <button key={user.id} onClick={() => onSelectUser?.(user.id)} className="flex flex-col items-center w-16 text-center">
@@ -93,7 +113,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
                 onClick={() => setShowDeleteConfirm(true)}
                 className="flex-1 bg-red-50 text-red-500 font-bold py-3 px-4 rounded-lg"
               >
-                Delete
+                {t.detail_delete}
               </button>
             )}
             {onGoToChat && (
@@ -104,7 +124,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                Group Chat
+                {t.detail_group_chat}
               </button>
             )}
           </div>
@@ -114,7 +134,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
               onClick={() => onLeave(event.id)}
               className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg"
             >
-              Leave
+              {t.detail_leave}
             </button>
             {onGoToChat && (
               <button
@@ -124,7 +144,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                Group Chat
+                {t.detail_group_chat}
               </button>
             )}
           </div>
@@ -134,7 +154,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
             disabled={isFull}
             className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg disabled:bg-gray-400"
           >
-            {isFull ? 'This circle is full' : 'Join this circle'}
+            {isFull ? t.detail_full : t.detail_join}
           </button>
         )}
       </div>
@@ -143,11 +163,11 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = ({ event, allUsers, 
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6" onClick={() => setShowDeleteConfirm(false)}>
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900">Delete event?</h3>
-            <p className="text-sm text-gray-500 mt-2">This will permanently delete "{event.title}" and remove all attendees. This cannot be undone.</p>
+            <h3 className="text-lg font-bold text-gray-900">{t.detail_delete_title}</h3>
+            <p className="text-sm text-gray-500 mt-2">{t.detail_delete_body(event.title)}</p>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl">Cancel</button>
-              <button onClick={() => { setShowDeleteConfirm(false); onDelete?.(event.id); }} className="flex-1 bg-red-500 text-white font-semibold py-3 rounded-xl">Delete</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl">{t.detail_cancel}</button>
+              <button onClick={() => { setShowDeleteConfirm(false); onDelete?.(event.id); }} className="flex-1 bg-red-500 text-white font-semibold py-3 rounded-xl">{t.detail_delete_confirm}</button>
             </div>
           </div>
         </div>

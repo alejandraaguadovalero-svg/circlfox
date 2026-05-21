@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Event, User } from '../types';
+import { useLanguage, LANGUAGE_OPTIONS } from '../lib/i18n';
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
@@ -27,6 +28,7 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onSelectEvent, onJoin, onLeave }) => {
+  const { t } = useLanguage();
   const isOrganizer = event.organizer.id === currentUser.id;
   const isAttending = event.attendeeIds.includes(currentUser.id);
   const joinerIds = event.attendeeIds.filter(id => id !== event.organizer.id);
@@ -56,8 +58,12 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
   const handleReport = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMenu(false);
-    alert('Reported. Thanks for keeping Kruh safe!');
+    alert(t.card_reported);
   };
+
+  const langFlags = (event.languages ?? [])
+    .map(l => LANGUAGE_OPTIONS.find(o => o.value === l)?.flag)
+    .filter(Boolean);
 
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-black/5 mb-4" onClick={() => onSelectEvent(event.id)}>
@@ -75,15 +81,15 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
         {/* Overlay badges */}
         <div className="absolute top-3 left-3 flex gap-2">
           {isTonight && (
-            <span className="bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">🌙 Tonight</span>
+            <span className="bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">{t.card_tonight}</span>
           )}
           {!isFull && spotsLeft <= 5 && (
             <span className="bg-black/60 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm">
-              {spotsLeft} spot{spotsLeft !== 1 ? 's' : ''} left
+              {t.card_spots(spotsLeft)}
             </span>
           )}
           {isFull && (
-            <span className="bg-black/60 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm">Full</span>
+            <span className="bg-black/60 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm">{t.card_full}</span>
           )}
         </div>
 
@@ -97,8 +103,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
             <>
               <div className="fixed inset-0 z-10" onClick={e => { e.stopPropagation(); setShowMenu(false); }} />
               <div className="absolute right-0 top-9 z-20 bg-white rounded-2xl shadow-lg border border-gray-100 w-36 py-1">
-                <button onClick={handleShare} className="w-full text-left px-4 py-2.5 text-sm text-gray-700">Share plan</button>
-                <button onClick={handleReport} className="w-full text-left px-4 py-2.5 text-sm text-red-500">Report</button>
+                <button onClick={handleShare} className="w-full text-left px-4 py-2.5 text-sm text-gray-700">{t.card_share}</button>
+                <button onClick={handleReport} className="w-full text-left px-4 py-2.5 text-sm text-red-500">{t.card_report}</button>
               </div>
             </>
           )}
@@ -147,19 +153,24 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
                 })}
               </div>
             )}
-            <p className="text-sm font-semibold text-gray-500">
-              {joinerIds.length > 0
-                ? <><span className="text-secondary font-bold">{joinerIds.length}</span> going</>
-                : 'Be the first'
-              }
-              {!isFull && spotsLeft <= 5 && (
-                <span className={spotsLeft <= 3 ? 'text-accent font-bold' : ''}> · {spotsLeft} left</span>
+            <div className="flex flex-col">
+              <p className="text-sm font-semibold text-gray-500">
+                {joinerIds.length > 0
+                  ? <><span className="text-secondary font-bold">{joinerIds.length}</span> {t.card_going}</>
+                  : t.card_be_first
+                }
+                {!isFull && spotsLeft <= 5 && (
+                  <span className={spotsLeft <= 3 ? 'text-accent font-bold' : ''}> · {t.card_spots(spotsLeft)}</span>
+                )}
+                {isFull && <span className="text-gray-400"> · {t.card_full}</span>}
+              </p>
+              {langFlags.length > 0 && (
+                <p className="text-xs text-gray-400 mt-0.5">{langFlags.join(' ')}</p>
               )}
-              {isFull && <span className="text-gray-400"> · Full</span>}
-            </p>
+            </div>
           </div>
           {isOrganizer ? (
-            <span className="font-semibold py-2 px-4 rounded-2xl text-xs bg-primary/10 text-primary" onClick={e => e.stopPropagation()}>Your plan</span>
+            <span className="font-semibold py-2 px-4 rounded-2xl text-xs bg-primary/10 text-primary" onClick={e => e.stopPropagation()}>{t.card_your_plan}</span>
           ) : (
             <button
               onClick={handleJoinLeave}
@@ -171,7 +182,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
                 : 'bg-primary text-white shadow-sm'
               }`}
             >
-              {isAttending ? '✓ Joined' : isFull ? 'Full' : 'Join'}
+              {isAttending ? t.card_joined : isFull ? t.card_full : t.card_join}
             </button>
           )}
         </div>

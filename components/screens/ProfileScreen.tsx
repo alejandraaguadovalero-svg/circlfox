@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Event } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { useLanguage } from '../../lib/i18n';
 
 interface ProfileScreenProps {
   currentUser: User;
@@ -32,6 +33,7 @@ const SettingsRow: React.FC<{ label: string; enabled: boolean; onChange: () => v
 );
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLogout, onUpdateUser }) => {
+  const { t } = useLanguage();
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl);
@@ -71,8 +73,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
   };
 
   const handleSaveProfile = async () => {
-    if (!editUsername.trim()) { setEditError('Username is required.'); return; }
-    if (editUsername.includes(' ')) { setEditError('Username cannot contain spaces.'); return; }
+    if (!editUsername.trim()) { setEditError(t.edit_username_required); return; }
+    if (editUsername.includes(' ')) { setEditError(t.edit_username_spaces); return; }
     setEditSaving(true);
     setEditError('');
     const { error } = await supabase.from('profiles').update({
@@ -82,7 +84,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
     }).eq('id', currentUser.id);
     if (error) {
       if (error.message.includes('unique') || error.message.includes('duplicate')) {
-        setEditError('That username is already taken.');
+        setEditError(t.edit_username_taken);
       } else {
         setEditError(error.message);
       }
@@ -136,29 +138,32 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           <h2 className="text-2xl font-bold text-gray-900 mt-3">{currentUser.name}</h2>
           {currentUser.username && <p className="text-primary font-semibold text-sm">@{currentUser.username}</p>}
+          {currentUser.nationality && (
+            <p className="text-gray-400 text-xs mt-1 font-medium">{t.profile_nationality}: {currentUser.nationality}</p>
+          )}
           {currentUser.bio && <p className="text-gray-500 mt-1.5 text-sm max-w-xs">{currentUser.bio}</p>}
           <button onClick={() => { setEditUsername(currentUser.username); setEditBio(currentUser.bio); setEditInterests(currentUser.interests); setEditError(''); setShowEditProfile(true); }}
             className="mt-3 text-sm font-semibold text-primary border border-primary/30 px-5 py-1.5 rounded-full bg-primary/5">
-            Edit Profile
+            {t.profile_edit}
           </button>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-6 text-center">
-          <StatCard label="Circles started" value={createdEvents.length.toString()} bg="bg-primary/10" color="text-primary" />
-          <StatCard label="Plans Attended" value={attendedEvents.length.toString()} bg="bg-accent/10" color="text-accent" />
+          <StatCard label={t.profile_circles} value={createdEvents.length.toString()} bg="bg-primary/10" color="text-primary" />
+          <StatCard label={t.profile_attended} value={attendedEvents.length.toString()} bg="bg-accent/10" color="text-accent" />
         </div>
 
         <div className="mt-5">
-          <h3 className="font-semibold text-gray-800 mb-2.5">My vibe ✨</h3>
+          <h3 className="font-semibold text-gray-800 mb-2.5">{t.profile_vibe}</h3>
           <div className="flex flex-wrap gap-2">
             {currentUser.interests.length > 0 ? currentUser.interests.map(interest => (
               <span key={interest} className="bg-primary/10 text-primary text-sm font-semibold px-3.5 py-1.5 rounded-full">{interest}</span>
-            )) : <p className="text-gray-400 text-sm">No interests added yet — edit your profile</p>}
+            )) : <p className="text-gray-400 text-sm">{t.profile_no_interests}</p>}
           </div>
         </div>
 
         <div className="mt-4">
-          <h3 className="font-semibold text-gray-800 mb-2">Upcoming Events</h3>
+          <h3 className="font-semibold text-gray-800 mb-2">{t.profile_upcoming}</h3>
           {upcomingEvents.length > 0 ? (
             <div className="space-y-2">
               {upcomingEvents.map(event => {
@@ -175,12 +180,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
             </div>
           ) : (
             <div className="bg-gray-50 p-4 rounded-xl text-center">
-              <p className="text-gray-400 text-sm">No upcoming events.</p>
+              <p className="text-gray-400 text-sm">{t.profile_no_events}</p>
             </div>
           )}
         </div>
 
-        <button onClick={onLogout} className="w-full mt-6 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg">Log Out</button>
+        <button onClick={onLogout} className="w-full mt-6 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg">{t.profile_logout}</button>
       </div>
 
       {/* Edit Profile Sheet */}
@@ -189,11 +194,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative bg-white rounded-t-2xl p-6 pb-10 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-5" />
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Edit Profile</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{t.edit_title}</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">{t.edit_username}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">@</span>
                   <input
@@ -206,7 +211,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Bio</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">{t.edit_bio}</label>
                 <textarea
                   value={editBio}
                   onChange={e => setEditBio(e.target.value.slice(0, 150))}
@@ -218,7 +223,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Interests</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t.edit_interests}</label>
                 <div className="flex flex-wrap gap-2">
                   {INTEREST_OPTIONS.map(interest => (
                     <button key={interest} onClick={() => toggleInterest(interest)}
@@ -233,7 +238,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
 
               <button onClick={handleSaveProfile} disabled={editSaving}
                 className="w-full bg-primary text-white font-bold py-3 rounded-xl disabled:opacity-60">
-                {editSaving ? 'Saving…' : 'Save Changes'}
+                {editSaving ? t.edit_saving : t.edit_save}
               </button>
             </div>
           </div>
@@ -246,15 +251,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative bg-white rounded-t-2xl p-6 pb-10" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Settings</h2>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Notifications</p>
-            <SettingsRow label="Event reminders" enabled={settings.eventNotifications} onChange={() => toggle('eventNotifications')} />
-            <SettingsRow label="New messages" enabled={settings.messageNotifications} onChange={() => toggle('messageNotifications')} />
-            <SettingsRow label="Activity & mentions" enabled={settings.activityNotifications} onChange={() => toggle('activityNotifications')} />
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">Privacy</p>
-            <SettingsRow label="Show my location" enabled={settings.showLocation} onChange={() => toggle('showLocation')} />
-            <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg">Done</button>
-            <button onClick={() => setShowDeleteConfirm(true)} className="w-full mt-3 text-red-500 font-semibold py-3 rounded-lg border border-red-200">Delete Account</button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{t.settings_title}</h2>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t.settings_notifications}</p>
+            <SettingsRow label={t.settings_event_reminders} enabled={settings.eventNotifications} onChange={() => toggle('eventNotifications')} />
+            <SettingsRow label={t.settings_messages} enabled={settings.messageNotifications} onChange={() => toggle('messageNotifications')} />
+            <SettingsRow label={t.settings_activity} enabled={settings.activityNotifications} onChange={() => toggle('activityNotifications')} />
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">{t.settings_privacy}</p>
+            <SettingsRow label={t.settings_location} enabled={settings.showLocation} onChange={() => toggle('showLocation')} />
+            <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg">{t.settings_done}</button>
+            <button onClick={() => setShowDeleteConfirm(true)} className="w-full mt-3 text-red-500 font-semibold py-3 rounded-lg border border-red-200">{t.settings_delete}</button>
           </div>
         </div>
       )}
@@ -264,11 +269,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6" onClick={() => setShowDeleteConfirm(false)}>
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900">Delete account?</h3>
-            <p className="text-sm text-gray-500 mt-2">This will permanently delete your account and all your data. This cannot be undone.</p>
+            <h3 className="text-lg font-bold text-gray-900">{t.delete_title}</h3>
+            <p className="text-sm text-gray-500 mt-2">{t.delete_body}</p>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl">Cancel</button>
-              <button onClick={handleDeleteAccount} className="flex-1 bg-red-500 text-white font-semibold py-3 rounded-xl">Delete</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl">{t.delete_cancel}</button>
+              <button onClick={handleDeleteAccount} className="flex-1 bg-red-500 text-white font-semibold py-3 rounded-xl">{t.delete_confirm}</button>
             </div>
           </div>
         </div>

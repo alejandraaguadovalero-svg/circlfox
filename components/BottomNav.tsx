@@ -1,5 +1,6 @@
 import React from 'react';
 import { HomeIcon, UserCircleIcon, BellIcon, ChatIcon } from './icons';
+import { useLanguage } from '../lib/i18n';
 
 interface BottomNavProps {
   currentView: string;
@@ -8,12 +9,13 @@ interface BottomNavProps {
 }
 
 const BottomNav: React.FC<BottomNavProps> = ({ currentView, setCurrentView, badges = {} }) => {
+  const { t } = useLanguage();
   const sideItems = [
-    { view: 'home', icon: HomeIcon, label: 'Home' },
-    { view: 'activities', icon: BellIcon, label: 'Activity' },
-    null, // center placeholder
-    { view: 'chat', icon: ChatIcon, label: 'Chat' },
-    { view: 'profile', icon: UserCircleIcon, label: 'Profile' },
+    { view: 'home', icon: HomeIcon, label: t.nav_home },
+    { view: 'activities', icon: BellIcon, label: t.nav_activity },
+    null,
+    { view: 'chat', icon: ChatIcon, label: t.nav_chat },
+    { view: 'profile', icon: UserCircleIcon, label: t.nav_profile },
   ];
 
   return (

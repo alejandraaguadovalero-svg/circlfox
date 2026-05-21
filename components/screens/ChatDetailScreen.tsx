@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Event, User, Message } from '../../types';
+import { useLanguage } from '../../lib/i18n';
 
 interface ChatDetailScreenProps {
   event: Event;
@@ -27,6 +28,7 @@ function formatDay(iso: string): string {
 const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
   event, currentUser, allUsers, messages, onSendMessage, onBack,
 }) => {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +80,7 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
         )}
         <div className="flex-1 min-w-0">
           <p className="font-bold text-gray-900 truncate text-sm">{event.title}</p>
-          <p className="text-xs text-gray-400">{event.attendeeIds.length} members</p>
+          <p className="text-xs text-gray-400">{t.chat_members(event.attendeeIds.length)}</p>
         </div>
       </header>
 
@@ -120,7 +122,7 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
           </div>
         ))}
         {messages.length === 0 && (
-          <p className="text-center text-gray-400 text-sm py-8">No messages yet. Say hi! 👋</p>
+          <p className="text-center text-gray-400 text-sm py-8">{t.chat_empty_detail}</p>
         )}
         <div ref={bottomRef} />
       </div>
@@ -128,7 +130,7 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
       {/* Quick replies */}
       {messages.length === 0 && (
         <div className="fixed bottom-[68px] left-0 right-0 max-w-lg mx-auto px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
-          {["I'm in! 🙌", "Anyone coming alone?", "Where exactly?", "Drinks after? 🍹"].map(q => (
+          {[t.quick_1, t.quick_2, t.quick_3, t.quick_4].map(q => (
             <button key={q} onClick={() => onSendMessage(q)}
               className="flex-shrink-0 bg-primary/10 text-primary text-xs font-semibold px-3 py-2 rounded-full border border-primary/20">
               {q}
@@ -144,7 +146,7 @@ const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Message..."
+          placeholder={t.chat_placeholder}
           className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none"
         />
         <button

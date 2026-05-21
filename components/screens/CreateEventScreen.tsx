@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Category, Event } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { useLanguage, LANGUAGE_OPTIONS } from '../../lib/i18n';
 
 interface CreateEventScreenProps {
   onCreateEvent: (eventData: Omit<Event, 'id' | 'organizer' | 'attendeeIds'>) => void;
@@ -25,6 +26,7 @@ interface LocationSuggestion {
 }
 
 const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, onCancel }) => {
+  const { t } = useLanguage();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<Category>(Category.SPORTS);
@@ -43,6 +45,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [eventType, setEventType] = useState('');
+  const [eventLanguages, setEventLanguages] = useState<string[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,12 +92,16 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     setUploadingImage(false);
   };
 
+  const toggleLanguage = (lang: string) =>
+    setEventLanguages(prev => prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]);
+
   const handleSubmit = () => {
     const errs: string[] = [];
-    if (!title.trim()) errs.push('Event title is required.');
-    if (!location.trim()) errs.push('Location is required.');
-    if (!description.trim()) errs.push('Description is required.');
-    if (category === Category.OTHER && !eventType.trim()) errs.push('Please describe your event type.');
+    if (!title.trim()) errs.push(t.val_title);
+    if (!location.trim()) errs.push(t.val_location);
+    if (!description.trim()) errs.push(t.val_description);
+    if (category === Category.OTHER && !eventType.trim()) errs.push(t.val_event_type);
+    if (eventLanguages.length === 0) errs.push(t.val_language);
     if (errs.length) { setErrors(errs); return; }
     setErrors([]);
     setShowSuccess(true);
@@ -103,7 +110,6 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
       const end = new Date(startDate);
       const [endH, endM] = endTime.split(':').map(Number);
       end.setHours(endH, endM, 0, 0);
-      // If end is before or equal to start, assume next day
       if (end <= startDate) end.setDate(end.getDate() + 1);
 
       onCreateEvent({
@@ -117,6 +123,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
         imageUrl: uploadedImageUrl ?? '',
         lat: locationCoords.lat,
         lng: locationCoords.lng,
+        languages: eventLanguages,
       });
     }, 1500);
   };
@@ -129,14 +136,14 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-secondary mx-auto">Start a circle</h1>
-        <button onClick={handleSubmit} className="text-primary font-bold text-sm">Post</button>
+        <h1 className="text-xl font-bold text-secondary mx-auto">{t.create_title}</h1>
+        <button onClick={handleSubmit} className="text-primary font-bold text-sm">{t.create_post}</button>
       </header>
 
       <div className="flex-1 overflow-y-auto pb-32">
         {/* Category */}
         <div className="px-4 pt-4">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Category</p>
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{t.create_category}</p>
           <div className="flex flex-wrap gap-2">
             {Object.values(Category).map(cat => (
               <button key={cat} onClick={() => setCategory(cat)}
@@ -157,7 +164,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
 
         {/* Event Image */}
         <div className="px-4 mt-5">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Event Image</p>
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{t.create_image}</p>
           <button onClick={() => fileInputRef.current?.click()}
             className="w-full h-44 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center gap-2 overflow-hidden relative">
             {uploadingImage ? (
@@ -169,30 +176,30 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p className="text-sm font-semibold text-gray-500">Add a photo</p>
-                <p className="text-xs text-gray-400">Tap to choose from your camera roll</p>
+                <p className="text-sm font-semibold text-gray-500">{t.create_add_photo}</p>
+                <p className="text-xs text-gray-400">{t.create_photo_sub}</p>
               </>
             )}
           </button>
           {uploadedImageUrl && (
-            <button onClick={() => setUploadedImageUrl(null)} className="mt-2 text-xs text-red-400 font-medium">Remove photo</button>
+            <button onClick={() => setUploadedImageUrl(null)} className="mt-2 text-xs text-red-400 font-medium">{t.create_remove_photo}</button>
           )}
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
         </div>
 
         {/* Form fields */}
         <div className="px-4 mt-5">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Details</p>
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{t.create_details}</p>
 
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 flex-shrink-0">What's the plan?</span>
+            <span className="font-semibold text-gray-800 flex-shrink-0">{t.create_plan_label}</span>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="Name your circle"
+              placeholder={t.create_name_placeholder}
               className="text-right text-gray-600 focus:outline-none bg-transparent flex-1 ml-4 placeholder-gray-300" />
           </div>
 
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 flex-shrink-0">Date & Start</span>
+            <span className="font-semibold text-gray-800 flex-shrink-0">{t.create_date_start}</span>
             <input type="datetime-local" value={date} onChange={e => {
               setDate(e.target.value);
               // Auto-advance end time to start + 2h when start changes
@@ -206,7 +213,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           </div>
 
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 flex-shrink-0">End Time</span>
+            <span className="font-semibold text-gray-800 flex-shrink-0">{t.create_end_time}</span>
             <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)}
               className="text-right text-gray-600 focus:outline-none bg-transparent text-sm" />
           </div>
@@ -214,11 +221,11 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
           {/* Location with autocomplete */}
           <div className="border-b border-gray-100 py-3 relative">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-gray-800 flex-shrink-0">Location</span>
+              <span className="font-semibold text-gray-800 flex-shrink-0">{t.create_location}</span>
               <input type="text" value={location} onChange={e => setLocation(e.target.value)}
                 onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Search in Madrid..."
+                placeholder={t.create_location_placeholder}
                 className="text-right text-gray-600 focus:outline-none bg-transparent flex-1 ml-4 placeholder-gray-300" />
             </div>
             {showSuggestions && suggestions.length > 0 && (
@@ -239,7 +246,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
 
           {/* Max Attendees stepper */}
           <div className="border-b border-gray-100 py-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800">How many can join?</span>
+            <span className="font-semibold text-gray-800">{t.create_max}</span>
             <div className="flex items-center gap-3">
               <button onClick={() => setMaxParticipants(v => Math.max(2, v - 1))}
                 className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-bold text-lg leading-none">−</button>
@@ -252,12 +259,32 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
 
         {/* Description */}
         <div className="px-4 mt-5">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">The Vibe</p>
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{t.create_vibe}</p>
           <textarea value={description} onChange={e => setDescription(e.target.value.slice(0, 300))} rows={4}
-            placeholder="Tell people what to expect. Chill? Active? Solo-friendly?"
+            placeholder={t.create_vibe_placeholder}
             maxLength={300}
             className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white placeholder-gray-300 resize-none" />
           <p className="text-xs text-gray-400 text-right mt-1">{description.length}/300</p>
+        </div>
+
+        {/* Event languages */}
+        <div className="px-4 mt-5">
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">{t.create_languages}</p>
+          <p className="text-xs text-gray-400 mb-3">{t.create_languages_sub}</p>
+          <div className="flex flex-wrap gap-2">
+            {LANGUAGE_OPTIONS.map(lang => (
+              <button
+                key={lang.value}
+                onClick={() => toggleLanguage(lang.value)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                  eventLanguages.includes(lang.value) ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.native}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {errors.length > 0 && (
@@ -275,8 +302,8 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="text-xl font-bold text-gray-900">Your circle is live! ✦</p>
-            <p className="text-gray-500 text-sm">People can now join your plan</p>
+            <p className="text-xl font-bold text-gray-900">{t.create_success}</p>
+            <p className="text-gray-500 text-sm">{t.create_success_sub}</p>
           </div>
         </div>
       )}
@@ -284,7 +311,7 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-4 pb-8 bg-white border-t">
         <button onClick={handleSubmit}
           className="w-full bg-primary text-white font-bold py-4 rounded-xl text-base">
-          Start this circle
+          {t.create_btn}
         </button>
       </div>
     </div>

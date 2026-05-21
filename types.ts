@@ -7,6 +7,8 @@ export interface User {
   bio: string;
   interests: string[];
   avatarUrl: string;
+  nationality?: string;
+  spokenLanguages?: string[];
 }
 
 export interface Event {
@@ -23,6 +25,7 @@ export interface Event {
   attendeeIds: string[];
   maxParticipants: number;
   category: Category;
+  languages?: string[];
 }
 
 export enum Category {

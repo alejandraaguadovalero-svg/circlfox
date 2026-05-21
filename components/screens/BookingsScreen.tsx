@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Event, Category, User } from '../../types';
 import { MapPinIcon, UsersIcon } from '../icons';
+import { useLanguage } from '../../lib/i18n';
 
 declare global {
   interface Window { L: any; }
@@ -57,6 +58,7 @@ const EventListItem: React.FC<{ event: Event; currentUserId: string; organizerId
 };
 
 const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, onSelectEvent }) => {
+  const { t } = useLanguage();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const onSelectEventRef = useRef(onSelectEvent);
@@ -114,7 +116,7 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
         <div />
         <div className="flex items-center gap-2">
           <MapPinIcon className="w-5 h-5" />
-          <h1 className="text-lg font-bold text-secondary">Madrid</h1>
+          <h1 className="text-lg font-bold text-secondary">{t.map_title}</h1>
         </div>
         <div className="w-6" />
       </header>
@@ -133,7 +135,7 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
               </svg>
-              {activeCategory ?? 'Filter'}
+              {activeCategory ?? t.map_filter}
             </button>
             <button
               onClick={() => setShowSortSheet(true)}
@@ -142,18 +144,18 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M6 12h12M9 17h6" />
               </svg>
-              {sortBy === 'date' ? 'Soonest' : 'Popular'}
+              {sortBy === 'date' ? t.map_soonest : t.map_popular}
             </button>
           </div>
-          <span className="text-sm font-semibold text-gray-500">{filteredEvents.length} events</span>
+          <span className="text-sm font-semibold text-gray-500">{t.map_events(filteredEvents.length)}</span>
         </div>
 
         <div className="space-y-3">
           {filteredEvents.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-3xl mb-2">🔍</p>
-              <p className="font-semibold text-gray-700">No events found</p>
-              <p className="text-sm text-gray-400 mt-1">Try a different filter</p>
+              <p className="font-semibold text-gray-700">{t.map_empty}</p>
+              <p className="text-sm text-gray-400 mt-1">{t.map_empty_sub}</p>
             </div>
           ) : filteredEvents.map(event => (
             <EventListItem key={event.id} event={event} currentUserId={currentUser.id} organizerId={event.organizer.id} onSelectEvent={onSelectEvent} />
@@ -167,13 +169,13 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative bg-white rounded-t-2xl p-6 pb-10" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-5" />
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Filter by category</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{t.map_filter_title}</h2>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => { setActiveCategory(null); setShowFilterSheet(false); }}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${!activeCategory ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}
               >
-                All
+                {t.map_filter_all}
               </button>
               {Object.values(Category).map(cat => (
                 <button
@@ -195,9 +197,9 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative bg-white rounded-t-2xl p-6 pb-10" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-5" />
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Sort by</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{t.map_sort_title}</h2>
             <div className="space-y-2">
-              {([['date', 'Soonest first', 'Events happening next'], ['popular', 'Most popular', 'Events with most attendees']] as const).map(([val, label, desc]) => (
+              {([['date', t.map_soonest_label, t.map_soonest_desc], ['popular', t.map_popular_label, t.map_popular_desc]] as const).map(([val, label, desc]) => (
                 <button
                   key={val}
                   onClick={() => { setSortBy(val); setShowSortSheet(false); }}

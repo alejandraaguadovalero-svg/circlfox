@@ -16,6 +16,7 @@ import OpenScreen from './components/screens/OpenScreen';
 import ProfileSetupScreen from './components/screens/ProfileSetupScreen';
 import { supabase } from './lib/supabase';
 import { fetchEvents, createEvent, joinEvent, leaveEvent, deleteEvent, fetchMessages, sendMessage, fetchProfiles } from './lib/api';
+import { LanguageProvider } from './lib/i18n';
 
 type View = 'home' | 'create' | 'profile' | 'eventDetail' | 'bookings' | 'activities' | 'chat' | 'chatDetail';
 type AppState = 'loading' | 'open' | 'login' | 'profile-setup' | 'main';
@@ -54,6 +55,8 @@ const App: React.FC = () => {
       bio: profile.bio ?? '',
       interests: profile.interests ?? [],
       avatarUrl: profile.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=7B4FFF&color=fff`,
+      nationality: profile.nationality ?? undefined,
+      spokenLanguages: profile.spoken_languages ?? [],
     };
     setCurrentUser(user);
     setUsers(prev => [...prev.filter(u => u.id !== userId), user]);
@@ -291,6 +294,7 @@ const App: React.FC = () => {
   const selectedProfileUser = selectedProfileUserId ? users.find(u => u.id === selectedProfileUserId) : null;
 
   return (
+    <LanguageProvider>
     <div className="max-w-lg mx-auto bg-cream min-h-screen flex flex-col font-sans">
       <main className="flex-grow">
         {eventsLoading && events.length === 0 ? (
@@ -319,6 +323,7 @@ const App: React.FC = () => {
         />
       )}
     </div>
+    </LanguageProvider>
   );
 };
 

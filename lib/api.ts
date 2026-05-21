@@ -14,6 +14,8 @@ function dbRowToEvent(row: any): Event {
     bio: p?.bio ?? '',
     interests: p?.interests ?? [],
     avatarUrl: p?.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(p?.full_name ?? 'User')}&background=7B4FFF&color=fff`,
+    nationality: p?.nationality ?? undefined,
+    spokenLanguages: p?.spoken_languages ?? [],
   };
   return {
     id: row.id,
@@ -29,6 +31,7 @@ function dbRowToEvent(row: any): Event {
     attendeeIds: (row.event_attendees ?? []).map((a: any) => a.user_id),
     maxParticipants: row.max_people ?? 10,
     category: row.category as Category,
+    languages: row.languages ?? [],
   };
 }
 
@@ -59,6 +62,7 @@ export async function createEvent(
       creator_id: currentUser.id,
       max_people: eventData.maxParticipants,
       category: eventData.category,
+      languages: eventData.languages ?? [],
     })
     .select()
     .single();
@@ -97,6 +101,8 @@ export async function fetchProfiles(userIds: string[]): Promise<User[]> {
     bio: p.bio ?? '',
     interests: p.interests ?? [],
     avatarUrl: p.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'User')}&background=7B4FFF&color=fff`,
+    nationality: p.nationality ?? undefined,
+    spokenLanguages: p.spoken_languages ?? [],
   }));
 }
 

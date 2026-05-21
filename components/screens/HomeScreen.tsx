@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Event, User, Category } from '../../types';
 import EventCard from '../EventCard';
+import { useLanguage } from '../../lib/i18n';
 
 interface HomeScreenProps {
   events: Event[];
@@ -16,19 +17,9 @@ interface HomeScreenProps {
 type Tab = 'joined' | 'foryou';
 type MoodFilter = 'all' | 'tonight' | 'chill' | 'active' | Category;
 
-const MOOD_FILTERS: { id: MoodFilter; label: string; emoji: string }[] = [
-  { id: 'all', label: 'All', emoji: '✦' },
-  { id: 'tonight', label: 'Tonight', emoji: '🌙' },
-  { id: 'chill', label: 'Chill', emoji: '☕' },
-  { id: 'active', label: 'Active', emoji: '⚡' },
-  { id: Category.FOOD, label: 'Food', emoji: '🍜' },
-  { id: Category.MUSIC, label: 'Music', emoji: '🎵' },
-  { id: Category.ARTS, label: 'Creative', emoji: '🎨' },
-  { id: Category.STUDY, label: 'Study', emoji: '📚' },
-  { id: Category.OTHER, label: 'Other', emoji: '✨' },
-];
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, onSelectEvent, onNavigateToCreate, onNavigateToMap, onJoin, onLeave }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<Tab>('foryou');
   const now = new Date();
   const todayStr = now.toDateString();
@@ -37,6 +28,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, 
   const [moodFilter, setMoodFilter] = useState<MoodFilter>('all');
 
   const firstName = currentUser.name.split(' ')[0];
+
+  const MOOD_FILTERS_T = [
+    { id: 'all' as MoodFilter, label: t.mood_all, emoji: '✦' },
+    { id: 'tonight' as MoodFilter, label: t.mood_tonight, emoji: '🌙' },
+    { id: 'chill' as MoodFilter, label: t.mood_chill, emoji: '☕' },
+    { id: 'active' as MoodFilter, label: t.mood_active, emoji: '⚡' },
+    { id: Category.FOOD as MoodFilter, label: t.mood_food, emoji: '🍜' },
+    { id: Category.MUSIC as MoodFilter, label: t.mood_music, emoji: '🎵' },
+    { id: Category.ARTS as MoodFilter, label: t.mood_creative, emoji: '🎨' },
+    { id: Category.STUDY as MoodFilter, label: t.mood_study, emoji: '📚' },
+    { id: Category.OTHER as MoodFilter, label: t.mood_other, emoji: '✨' },
+  ];
 
   const applyMood = (event: Event): boolean => {
     if (moodFilter === 'all') return true;
@@ -66,7 +69,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, 
         <div className="flex justify-between items-center mb-3">
           <div>
             <p className="text-xs text-gray-400 font-medium">Hey {firstName} 👋</p>
-            <h1 className="text-xl font-bold text-secondary leading-tight">What are you up for?</h1>
+            <h1 className="text-xl font-bold text-secondary leading-tight">{t.home_subtitle}</h1>
           </div>
           <button onClick={() => { setShowSearch(v => !v); setSearchQuery(''); }} className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -86,23 +89,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, 
         {tonightCount > 0 && !showSearch && (
           <div className="flex items-center gap-2 bg-primary/10 rounded-2xl px-3 py-2 mb-3">
             <span className="text-base">🌙</span>
-            <p className="text-sm font-semibold text-primary">{tonightCount} plan{tonightCount > 1 ? 's' : ''} happening tonight near you</p>
+            <p className="text-sm font-semibold text-primary">{t.home_tonight_banner(tonightCount)}</p>
           </div>
         )}
 
         <div className="flex space-x-6 mb-1">
           <button onClick={() => setActiveTab('foryou')}
             className={`py-2.5 text-sm font-bold ${activeTab === 'foryou' ? 'text-primary border-b-2 border-primary' : 'text-gray-400'}`}>
-            Discover
+            {t.home_discover}
           </button>
           <button onClick={() => setActiveTab('joined')}
             className={`py-2.5 text-sm font-bold ${activeTab === 'joined' ? 'text-primary border-b-2 border-primary' : 'text-gray-400'}`}>
-            My Plans
+            {t.home_my_plans}
           </button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-3 pt-1 no-scrollbar">
-          {MOOD_FILTERS.map(({ id, label, emoji }) => (
+          {MOOD_FILTERS_T.map(({ id, label, emoji }) => (
             <button key={id} onClick={() => setMoodFilter(moodFilter === id ? 'all' : id)}
               className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${moodFilter === id ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 border border-black/5'}`}>
               <span>{emoji}</span><span>{label}</span>
@@ -114,13 +117,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, 
       <div className="p-4">
         <div className="flex gap-2 mb-4">
           <button onClick={onNavigateToCreate} className="flex-1 bg-primary text-white font-bold py-3 rounded-2xl shadow-sm">
-            ✦ Start a circle
+            {t.home_start}
           </button>
           <button onClick={onNavigateToMap} className="bg-white text-gray-700 font-semibold py-3 px-4 rounded-2xl flex items-center gap-1.5 border border-black/5 shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503-10.498h-7a2.25 2.25 0 00-2.25 2.25v10.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-10.5a2.25 2.25 0 00-2.25-2.25z" />
             </svg>
-            Map
+            {t.home_map}
           </button>
         </div>
         {visibleEvents.length > 0 ? (
@@ -137,15 +140,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ events, currentUser, allUsers, 
               </svg>
             </div>
             <p className="font-bold text-gray-700 text-lg">
-              {searchQuery ? 'No plans match your search'
-                : moodFilter !== 'all' ? 'Nothing in this vibe yet'
-                : activeTab === 'joined' ? 'No upcoming plans'
-                : 'No plans around you yet'}
+              {searchQuery ? t.home_empty_search
+                : moodFilter !== 'all' ? t.home_empty_vibe
+                : activeTab === 'joined' ? t.home_empty_joined
+                : t.home_empty_discover}
             </p>
             <p className="text-gray-400 text-sm mt-1">
               {activeTab === 'joined'
-                ? 'Join plans from Discover to see them here'
-                : 'Be the first — start a circle!'}
+                ? t.home_empty_joined_sub
+                : t.home_empty_discover_sub}
             </p>
           </div>
         )}
