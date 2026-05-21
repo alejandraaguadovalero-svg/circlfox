@@ -111,7 +111,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
     <div className="bg-cream h-full pb-24">
       {/* Gradient banner + gear */}
       <div className="relative">
-        <div className="h-36 w-full bg-primary" />
+        <div className="w-full bg-primary" style={{ height: 'calc(9rem + env(safe-area-inset-top))', marginTop: 'calc(-1 * env(safe-area-inset-top))' }} />
         <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 w-9 h-9 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
           <GearIcon className="h-5 w-5 text-white" />
         </button>

@@ -261,7 +261,7 @@ const App: React.FC = () => {
 
   if (appState === 'loading') {
     return (
-      <div className="app-shell bg-primary flex items-center justify-center">
+      <div className="app-shell bg-primary flex items-center justify-center" style={{ paddingTop: 0 }}>
         <img src="/logo.png" alt="Kruh" className="w-32 h-32 object-contain animate-pulse" />
       </div>
     );

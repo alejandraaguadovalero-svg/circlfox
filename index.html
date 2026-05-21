@@ -60,7 +60,11 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      padding-top: env(safe-area-inset-top);
+      background-color: #FFFBF5; /* cream — fills the status bar gap */
     }
+    /* Sticky headers must sit at the top of the padded shell, not page top */
+    .sticky { position: sticky; top: 0; }
   </style>
   <script type="importmap">
 {
