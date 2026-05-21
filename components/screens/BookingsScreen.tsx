@@ -77,19 +77,28 @@ const BookingsScreen: React.FC<BookingsScreenProps> = ({ events, currentUser, on
       return bJoiners - aJoiners;
     });
 
+  // Initialize map once on mount, destroy on unmount
   useEffect(() => {
     if (!mapContainerRef.current) return;
-    if (!mapRef.current) {
-      const map = window.L.map(mapContainerRef.current).setView([40.4168, -3.7038], 13);
-      mapRef.current = map;
-      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20,
-      }).addTo(map);
-      setTimeout(() => map.invalidateSize(), 100);
-    }
+    const map = window.L.map(mapContainerRef.current).setView([40.4168, -3.7038], 13);
+    mapRef.current = map;
+    window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20,
+    }).addTo(map);
+    setTimeout(() => map.invalidateSize(), 100);
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerEventIds.current = new Set();
+    };
+  }, []);
+
+  // Add markers for any events not yet on the map
+  useEffect(() => {
     const map = mapRef.current;
+    if (!map) return;
     events.forEach(event => {
       if (markerEventIds.current.has(event.id)) return;
       markerEventIds.current.add(event.id);
