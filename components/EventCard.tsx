@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Event, User } from '../types';
 import { useLanguage, LANGUAGE_OPTIONS } from '../lib/i18n';
 import { useToast } from './Toast';
+import { reportEvent } from '../lib/api';
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   Sports: '⚽', Drinks: '🍹', Arts: '🎨', 'Study Sessions': '📚',
@@ -57,9 +58,10 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUser, allUsers, onS
     else { navigator.clipboard.writeText(window.location.href); showToast(t.card_link_copied, 'success'); }
   };
 
-  const handleReport = (e: React.MouseEvent) => {
+  const handleReport = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMenu(false);
+    await reportEvent(event.id, currentUser.id);
     showToast(t.card_reported, 'success');
   };
 

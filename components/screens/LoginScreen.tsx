@@ -4,6 +4,7 @@ import { useLanguage } from '../../lib/i18n';
 
 interface LoginScreenProps {
   onLogin: () => void;
+  onSignup: (userId: string, email: string) => void;
 }
 
 const EyeIcon: React.FC<{ show: boolean }> = ({ show }) => show ? (
@@ -32,7 +33,7 @@ const LegalModal: React.FC<{ title: string; onClose: () => void; children: React
   </div>
 );
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
   const { t, lang } = useLanguage();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -65,13 +66,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setLoading(true);
     setEmailError(''); setPasswordError('');
     try {
-      const { error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 25000);
-      if (!error) { onLogin(); return; }
-      const msg = error.message.toLowerCase();
-      if (msg.includes('invalid') || msg.includes('credentials')) {
+      const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 25000);
+      if (!error && data.user) {
+        if (!data.user.email_confirmed_at) {
+          onSignup(data.user.id, email);
+          return;
+        }
+        onLogin();
+        return;
+      }
+      const msg = error?.message.toLowerCase() ?? '';
+      if (msg.includes('email not confirmed')) {
+        setEmailError(t.email_not_confirmed);
+      } else if (msg.includes('invalid') || msg.includes('credentials')) {
         setPasswordError(t.password_wrong);
       } else {
-        setPasswordError(error.message);
+        setPasswordError(error?.message ?? '');
       }
     } catch (e: any) {
       setPasswordError(e.message);
@@ -86,11 +96,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       const { data, error } = await withTimeout(supabase.auth.signUp({ email, password }), 25000);
       if (!error && data?.user) {
-        await supabase.from('profiles').upsert(
-          { id: data.user.id, full_name: email.split('@')[0] },
-          { onConflict: 'id' }
-        );
-        onLogin();
+        onSignup(data.user.id, email);
         return;
       }
       if (error) {

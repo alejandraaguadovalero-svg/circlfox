@@ -130,3 +130,16 @@ export async function sendMessage(eventId: string, senderId: string, text: strin
   if (error) { console.error('sendMessage:', error); return null; }
   return { id: data.id, senderId: data.sender_id, text: data.text, timestamp: data.created_at };
 }
+
+export async function reportEvent(eventId: string, reporterId: string, reason: string = 'inappropriate'): Promise<boolean> {
+  const { error } = await supabase
+    .from('reports')
+    .insert({ event_id: eventId, reporter_id: reporterId, reason })
+    .select();
+  if (error) {
+    if (error.code === '23505') return true; // already reported, silent dedup
+    console.error('reportEvent:', error);
+    return false;
+  }
+  return true;
+}

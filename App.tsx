@@ -18,8 +18,40 @@ import { supabase } from './lib/supabase';
 import { fetchEvents, createEvent, joinEvent, leaveEvent, deleteEvent, fetchMessages, sendMessage, fetchProfiles } from './lib/api';
 import { LanguageProvider } from './lib/i18n';
 
+const EmailPendingScreen: React.FC<{ email: string; onBack: () => void }> = ({ email, onBack }) => {
+  const [resent, setResent] = React.useState(false);
+  const [resending, setResending] = React.useState(false);
+
+  const handleResend = async () => {
+    setResending(true);
+    await supabase.auth.resend({ type: 'signup', email });
+    setResending(false);
+    setResent(true);
+    setTimeout(() => setResent(false), 4000);
+  };
+
+  return (
+    <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-6 text-center font-sans">
+      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your inbox</h1>
+      <p className="text-gray-500 text-sm mb-1">We sent a confirmation link to</p>
+      <p className="font-semibold text-gray-800 mb-6 break-all">{email}</p>
+      <p className="text-gray-400 text-xs mb-8 max-w-xs">Click the link in the email to activate your account. Check your spam folder if you don't see it.</p>
+      <button onClick={handleResend} disabled={resending || resent}
+        className="w-full max-w-xs bg-primary text-white font-bold py-3 rounded-xl mb-3 disabled:opacity-60">
+        {resent ? '✓ Email resent!' : resending ? 'Sending…' : 'Resend confirmation email'}
+      </button>
+      <button onClick={onBack} className="text-sm text-gray-400 font-medium">← Back to login</button>
+    </div>
+  );
+};
+
 type View = 'home' | 'create' | 'profile' | 'eventDetail' | 'bookings' | 'activities' | 'chat' | 'chatDetail';
-type AppState = 'loading' | 'open' | 'login' | 'profile-setup' | 'main';
+type AppState = 'loading' | 'open' | 'login' | 'email-pending' | 'profile-setup' | 'main';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -110,7 +142,15 @@ const App: React.FC = () => {
         setEvents([]);
         setEventMessages({});
         setAppState('login');
-      } else if (event === 'SIGNED_IN' && session && appState !== 'main') {
+      } else if (event === 'SIGNED_IN' && session) {
+        if (!session.user.email_confirmed_at) {
+          setPendingUserId(session.user.id);
+          setPendingEmail(session.user.email ?? null);
+          setAppState('email-pending');
+        } else if (appState !== 'main') {
+          await fetchProfile(session.user.id, session.user.email);
+        }
+      } else if (event === 'USER_UPDATED' && session?.user.email_confirmed_at) {
         await fetchProfile(session.user.id, session.user.email);
       }
     });
@@ -125,6 +165,11 @@ const App: React.FC = () => {
 
   const handleEnter = () => setAppState('login');
   const handleLogin = () => {};
+  const handleEmailSignup = (userId: string, email: string) => {
+    setPendingUserId(userId);
+    setPendingEmail(email);
+    setAppState('email-pending');
+  };
   const handleLogout = async () => { await supabase.auth.signOut(); };
 
   const handleProfileComplete = (user: User) => {
@@ -223,7 +268,8 @@ const App: React.FC = () => {
   }
 
   if (appState === 'open') return <OpenScreen onEnter={handleEnter} />;
-  if (appState === 'login') return <LoginScreen onLogin={handleLogin} />;
+  if (appState === 'login') return <LoginScreen onLogin={handleLogin} onSignup={handleEmailSignup} />;
+  if (appState === 'email-pending') return <EmailPendingScreen email={pendingEmail ?? ''} onBack={() => setAppState('login')} />;
   if (appState === 'profile-setup' && pendingUserId) {
     return <ProfileSetupScreen userId={pendingUserId} emailHint={pendingEmail ?? undefined} onComplete={handleProfileComplete} />;
   }
