@@ -45,8 +45,8 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [eventType, setEventType] = useState('');
+  const MAX_EVENT_LANGUAGES = 4;
   const [eventLanguages, setEventLanguages] = useState<string[]>([]);
-  const [customLangInput, setCustomLangInput] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -93,14 +93,12 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
     setUploadingImage(false);
   };
 
-  const toggleLanguage = (lang: string) =>
-    setEventLanguages(prev => prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]);
-
-  const addCustomLanguage = () => {
-    const val = customLangInput.trim();
-    if (!val || eventLanguages.includes(val)) { setCustomLangInput(''); return; }
-    setEventLanguages(prev => [...prev, val]);
-    setCustomLangInput('');
+  const toggleLanguage = (lang: string) => {
+    setEventLanguages(prev => {
+      if (prev.includes(lang)) return prev.filter(l => l !== lang);
+      if (prev.length >= MAX_EVENT_LANGUAGES) return prev;
+      return [...prev, lang];
+    });
   };
 
   const handleSubmit = () => {
@@ -277,57 +275,41 @@ const CreateEventScreen: React.FC<CreateEventScreenProps> = ({ onCreateEvent, on
 
         {/* Event languages */}
         <div className="px-4 mt-5">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">{t.create_languages}</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{t.create_languages}</p>
+            <span className={`text-xs font-semibold ${eventLanguages.length >= MAX_EVENT_LANGUAGES ? 'text-accent' : 'text-gray-400'}`}>
+              {eventLanguages.length}/{MAX_EVENT_LANGUAGES}
+            </span>
+          </div>
           <p className="text-xs text-gray-400 mb-3">{t.create_languages_sub}</p>
 
-          {/* Selected chips */}
-          {eventLanguages.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {eventLanguages.map(lang => {
-                const opt = LANGUAGE_OPTIONS.find(o => o.value === lang);
-                return (
-                  <button key={lang} onClick={() => toggleLanguage(lang)}
-                    className="flex items-center gap-1 bg-primary text-white text-sm font-semibold px-3 py-1.5 rounded-full">
-                    {opt ? <><span>{opt.flag}</span><span>{opt.native}</span></> : <span>{lang}</span>}
-                    <span className="ml-1 opacity-70">×</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Preset chips (hide already selected) */}
           <div className="flex flex-wrap gap-2">
-            {LANGUAGE_OPTIONS.filter(l => !eventLanguages.includes(l.value)).map(lang => (
-              <button
-                key={lang.value}
-                onClick={() => toggleLanguage(lang.value)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-700"
-              >
-                <span>{lang.flag}</span>
-                <span>{lang.native}</span>
-              </button>
-            ))}
+            {LANGUAGE_OPTIONS.map(lang => {
+              const selected = eventLanguages.includes(lang.value);
+              const atMax = eventLanguages.length >= MAX_EVENT_LANGUAGES && !selected;
+              return (
+                <button
+                  key={lang.value}
+                  onClick={() => toggleLanguage(lang.value)}
+                  disabled={atMax}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                    selected
+                      ? 'bg-primary text-white'
+                      : atMax
+                      ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <span>{lang.flag}</span>
+                  <span>{lang.native}</span>
+                  {selected && <span className="ml-0.5 opacity-70 text-xs">✓</span>}
+                </button>
+              );
+            })}
           </div>
-
-          {/* Custom language input */}
-          <div className="flex gap-2 mt-3">
-            <input
-              type="text"
-              value={customLangInput}
-              onChange={e => setCustomLangInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addCustomLanguage()}
-              placeholder="Other language..."
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <button
-              onClick={addCustomLanguage}
-              disabled={!customLangInput.trim()}
-              className="px-4 py-2.5 bg-primary text-white font-bold rounded-xl text-sm disabled:opacity-40"
-            >
-              +
-            </button>
-          </div>
+          {eventLanguages.length >= MAX_EVENT_LANGUAGES && (
+            <p className="text-xs text-gray-400 mt-2">Max {MAX_EVENT_LANGUAGES} languages. Tap a selected one to remove it.</p>
+          )}
         </div>
 
         {errors.length > 0 && (
