@@ -16,6 +16,21 @@ const EyeIcon: React.FC<{ show: boolean }> = ({ show }) => show ? (
   </svg>
 );
 
+const LegalModal: React.FC<{ title: string; onClose: () => void; children: React.ReactNode }> = ({ title, onClose, children }) => (
+  <div className="fixed inset-0 z-50 flex flex-col justify-end" onClick={onClose}>
+    <div className="absolute inset-0 bg-black/40" />
+    <div className="relative bg-white rounded-t-2xl max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 text-lg font-bold">×</button>
+      </div>
+      <div className="overflow-y-auto px-6 py-4 text-sm text-gray-600 leading-relaxed space-y-4">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -24,6 +39,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   const switchMode = (m: 'login' | 'signup') => {
     setMode(m);
@@ -162,11 +179,41 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <footer className="flex-shrink-0 text-center px-6 pb-10">
         <p className="text-xs text-gray-400">
           By continuing you agree to our{' '}
-          <a href="#" className="text-gray-500 underline underline-offset-2">Terms</a>
+          <button onClick={() => setShowTerms(true)} className="text-gray-500 underline underline-offset-2">Terms</button>
           {' '}and{' '}
-          <a href="#" className="text-gray-500 underline underline-offset-2">Privacy Policy</a>
+          <button onClick={() => setShowPrivacy(true)} className="text-gray-500 underline underline-offset-2">Privacy Policy</button>
         </p>
       </footer>
+
+      {showTerms && (
+        <LegalModal title="Terms of Service" onClose={() => setShowTerms(false)}>
+          <p><strong>Last updated: May 2026</strong></p>
+          <p>Welcome to Kruh. By creating an account, you agree to these terms.</p>
+          <p><strong>1. Eligibility</strong><br />You must be between 17 and 32 years old to use Kruh. By signing up, you confirm this is true.</p>
+          <p><strong>2. Your account</strong><br />You are responsible for keeping your account secure. Use a strong password and don't share your credentials.</p>
+          <p><strong>3. Acceptable use</strong><br />Kruh is for meeting people and organising social events. You agree not to post false events, harass other users, or use the app for commercial purposes.</p>
+          <p><strong>4. Events</strong><br />Event organisers are responsible for the events they create. Kruh is not liable for anything that happens at events organised through the platform.</p>
+          <p><strong>5. Content</strong><br />By uploading photos or text, you grant Kruh a licence to display that content within the app. We will never sell your content to third parties.</p>
+          <p><strong>6. Termination</strong><br />We reserve the right to suspend or delete accounts that violate these terms.</p>
+          <p><strong>7. Changes</strong><br />We may update these terms. Continued use of Kruh after changes means you accept the new terms.</p>
+          <p>Questions? Contact us at hello@kruh.app</p>
+        </LegalModal>
+      )}
+
+      {showPrivacy && (
+        <LegalModal title="Privacy Policy" onClose={() => setShowPrivacy(false)}>
+          <p><strong>Last updated: May 2026</strong></p>
+          <p>Kruh takes your privacy seriously. Here's what we collect and why.</p>
+          <p><strong>What we collect</strong><br />Name, email address, date of birth, profile photo, interests, and the events you create or join.</p>
+          <p><strong>Why we collect it</strong><br />To create your profile, show you relevant events, and allow other users to connect with you.</p>
+          <p><strong>Who can see your data</strong><br />Your name, photo, and interests are visible to other Kruh users. Your email and date of birth are never shown publicly.</p>
+          <p><strong>Third parties</strong><br />We use Supabase to store data securely. We do not sell your data to advertisers or third parties.</p>
+          <p><strong>Location</strong><br />We use the location you enter when creating events. We do not track your device's GPS location.</p>
+          <p><strong>Your rights</strong><br />You can delete your account and all associated data at any time from your profile settings.</p>
+          <p><strong>Cookies</strong><br />We use only essential cookies required for authentication. No tracking or advertising cookies.</p>
+          <p>Questions? Contact us at hello@kruh.app</p>
+        </LegalModal>
+      )}
     </div>
   );
 };
