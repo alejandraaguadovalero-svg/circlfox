@@ -46,10 +46,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState('');
 
-  const [settings, setSettings] = useState({ eventNotifications: true, messageNotifications: true, activityNotifications: false, showLocation: true });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  const toggle = (key: keyof typeof settings) => setSettings(prev => ({ ...prev, [key]: !prev[key] }));
 
   const handleDeleteAccount = async () => {
     await supabase.from('profiles').delete().eq('id', currentUser.id);
@@ -265,12 +262,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
           <div className="relative bg-white rounded-t-2xl p-6 pb-10" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
             <h2 className="text-lg font-bold text-gray-900 mb-4">{t.settings_title}</h2>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t.settings_notifications}</p>
-            <SettingsRow label={t.settings_event_reminders} enabled={settings.eventNotifications} onChange={() => toggle('eventNotifications')} />
-            <SettingsRow label={t.settings_messages} enabled={settings.messageNotifications} onChange={() => toggle('messageNotifications')} />
-            <SettingsRow label={t.settings_activity} enabled={settings.activityNotifications} onChange={() => toggle('activityNotifications')} />
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">Language / Idioma</p>
-            <div className="flex gap-2 mb-4">
+
+            {/* Language */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Language / Idioma</p>
+            <div className="flex gap-2 mb-5">
               {(['en', 'es'] as Lang[]).map(l => (
                 <button key={l} onClick={() => setLang(l)}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-colors ${lang === l ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-400'}`}>
@@ -278,8 +273,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentUser, events, onLo
                 </button>
               ))}
             </div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-6 mb-2">{t.settings_privacy}</p>
-            <SettingsRow label={t.settings_location} enabled={settings.showLocation} onChange={() => toggle('showLocation')} />
+
+            {/* Notifications — coming soon */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t.settings_notifications}</p>
+            <div className="bg-gray-50 rounded-xl px-4 py-3 mb-5">
+              <p className="text-sm text-gray-500">{lang === 'es' ? '🔔 Las notificaciones push llegarán en una próxima actualización.' : '🔔 Push notifications are coming in a future update.'}</p>
+            </div>
             <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg">{t.settings_done}</button>
             <button onClick={() => setShowDeleteConfirm(true)} className="w-full mt-3 text-red-500 font-semibold py-3 rounded-lg border border-red-200">{t.settings_delete}</button>
           </div>
